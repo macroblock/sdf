@@ -1,7 +1,6 @@
 package sdf
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/macroblock/sdf/pkg/geom"
@@ -28,8 +27,13 @@ type (
 	}
 )
 
+// Update -
+func (o *Tile) Update(delta time.Duration) bool {
+	return false
+}
+
 // Copy -
-func (o *Tile) Copy(x, y int, delta time.Duration) {
+func (o *Tile) Copy(x, y int) {
 	if !Ok() || o == nil {
 		return
 	}
@@ -38,7 +42,7 @@ func (o *Tile) Copy(x, y int, delta time.Duration) {
 	x -= o.bearing.X
 	y -= o.bearing.Y
 	dst := sdl.Rect{X: int32(x), Y: int32(y), W: src.W, H: src.H}
-	fmt.Printf("src: %v\ndst: %v\n", src, dst)
+	// fmt.Printf("src: %v\ndst: %v\n", src, dst)
 	// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
 	err := sdf.renderer.CopyEx(o.tex.sdltex, &src, &dst, 0, nil, sdl.RendererFlip(o.flip))
 	// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)

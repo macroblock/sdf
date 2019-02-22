@@ -1,7 +1,5 @@
 package sdf
 
-import "time"
-
 type (
 	iInit interface {
 		Init()
@@ -21,6 +19,37 @@ type (
 
 	// IElem -
 	IElem interface {
-		Copy(x, y int, delta time.Duration)
+		// Update(delta time.Duration) bool
+		Copy(x, y int)
 	}
 )
+
+func callInit(i interface{}) {
+	if i, ok := i.(iInit); ok {
+		i.Init()
+	}
+}
+
+func callCleanUp(i interface{}) {
+	if i, ok := i.(iCleanUp); ok {
+		i.CleanUp()
+	}
+}
+
+func callUpdate(i interface{}) {
+	if i, ok := i.(iUpdate); ok {
+		i.Update()
+	}
+}
+
+func callRender(i interface{}) {
+	if i, ok := i.(iRender); ok {
+		i.Render()
+	}
+}
+
+func callHandleEvents(i interface{}) {
+	if i, ok := i.(iHandleEvents); ok {
+		i.HandleEvents()
+	}
+}

@@ -1,5 +1,7 @@
 package sdf
 
+import "time"
+
 // RefCounter -
 type RefCounter struct {
 	ref int
@@ -34,4 +36,14 @@ func setError(err error) {
 		return
 	}
 	sdf.err = err
+}
+
+// Time -
+func Time() time.Duration {
+	return time.Since(programStart)
+}
+
+// FixedTime -
+func FixedTime() time.Duration {
+	return fixedTime
 }

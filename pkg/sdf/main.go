@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	sdf    Type
-	on     handler
-	assets Assets
+	sdf          Type
+	on           handler
+	assets       Assets
+	programStart = time.Now()
+	fixedTime    = time.Since(programStart)
 )
 
 type (
@@ -19,6 +21,7 @@ type (
 	Type struct {
 		err         error
 		isRunning   bool
+		fps         float64
 		deltaRender time.Duration
 		deltaUpdate time.Duration
 		window      *sdl.Window
@@ -62,23 +65,29 @@ func Run(obj interface{}) error {
 	defer sdl.Quit()
 	setError(err)
 
-	window, renderer, err := sdl.CreateWindowAndRenderer(on.w, on.h, flags)
+	sdf.window, err = sdl.CreateWindow("test", on.x, on.y, on.w, on.h, flags)
+	if err == nil {
+		flags = sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC
+		sdf.renderer, err = sdl.CreateRenderer(sdf.window, -1, flags)
+	}
 	setError(err)
 
-	sdf.window = window
-	sdf.renderer = renderer
+	// sdf.window = window
+	// sdf.renderer = renderer
 
 	on.obj = obj
 
-	if i, ok := obj.(iInit); ok {
-		i.Init()
-	}
+	// if i, ok := obj.(iInit); ok {
+	// 	i.Init()
+	// }
+	callInit(obj)
 
 	sdf.isRunning = true
 
 	lastUpdate := time.Now()
 	lastRender := time.Now()
 	for Ok() && Running() {
+		fixedTime = time.Since(programStart)
 		HandleEvents()
 		sdf.deltaUpdate = time.Since(lastUpdate)
 		lastUpdate = time.Now()
@@ -87,6 +96,7 @@ func Run(obj interface{}) error {
 		lastRender = time.Now()
 		Render()
 		sdf.renderer.Present()
+		// sdl.Delay(1000 / 60)
 	}
 
 	CleanUp()
@@ -115,24 +125,19 @@ func CleanUp() {
 }
 
 // Running -
-func Running() bool {
-	return sdf.isRunning
-}
+func Running() bool { return sdf.isRunning }
+
+// Quit -
+func Quit() { sdf.isRunning = false }
 
 // Ok -
-func Ok() bool {
-	return sdf.err == nil
-}
+func Ok() bool { return sdf.err == nil }
 
 // HasError -
-func HasError() bool {
-	return sdf.err != nil
-}
+func HasError() bool { return sdf.err != nil }
 
 // Error -
-func Error() error {
-	return sdf.err
-}
+func Error() error { return sdf.err }
 
 // Warning -
 func Warning() error {
@@ -150,12 +155,7 @@ func HandleEvents() {
 	if !Ok() {
 		return
 	}
-	event := sdl.PollEvent()
-	switch ev := event.(type) {
-	case *sdl.QuitEvent:
-		_ = ev
-		sdf.isRunning = false
-	}
+	processInput()
 }
 
 // Update -
@@ -186,4 +186,9 @@ func DeltaUpdate() time.Duration {
 // DeltaRender -
 func DeltaRender() time.Duration {
 	return sdf.deltaRender
+}
+
+// FPS -
+func FPS() float64 {
+	return sdf.fps
 }
