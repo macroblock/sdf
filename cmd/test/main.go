@@ -20,7 +20,7 @@ type game struct {
 func (o *game) Init() {
 	fmt.Printf("initialized\n")
 
-	tex = sdf.LoadTexture("../../assets/ff6sheet.png")
+	tex = sdf.LoadTexture("../../assets/testsheet.png")
 	fmt.Println("tex ", tex)
 
 	font = sdf.CreatePixelFont(pixfm5x9normal.Font)
@@ -28,7 +28,7 @@ func (o *game) Init() {
 
 	sdf.SetScale(3, 3)
 
-	tileSheet = sdf.LoadTileSheet(-8, -6, "../../assets/ff6sheet.png")
+	tileSheet = sdf.LoadTileSheet(-8, -6, "../../assets/testsheet.png")
 	tileSheet.InitTile("front move 0", 1, 0, nil, 0)
 	tileSheet.InitTile("front move 1", 0, 0, nil, 0)
 	tileSheet.InitTile("front move 2", 2, 0, nil, 0)

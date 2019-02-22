@@ -50,7 +50,7 @@ func newSprite(tileSet *TileSheet, dur float64, tile *Tile, keyframes []tKeyfram
 
 // SetSpeed -
 func (o *Sprite) SetSpeed(speed float64) *Sprite {
-	if speed < 0 {
+	if speed < 0 || o == nil {
 		return o
 	}
 	o.speed = speed
