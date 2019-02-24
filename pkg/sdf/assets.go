@@ -8,7 +8,12 @@ import (
 type (
 	// Assets -
 	Assets struct {
-		byURI map[string]*Texture
+		byURI  map[string]*Texture
+		sheets map[string]*TileSheet
+		tiles  map[string]*Tile
+		anims  map[string]*Animation
+
+		currentTileSheet *TileSheet
 	}
 
 	// IResource -
@@ -19,7 +24,12 @@ type (
 )
 
 func newAssets() Assets {
-	return Assets{byURI: map[string]*Texture{}}
+	return Assets{
+		byURI:  map[string]*Texture{},
+		sheets: map[string]*TileSheet{},
+		tiles:  map[string]*Tile{},
+		anims:  map[string]*Animation{},
+	}
 }
 
 // LoadResource -

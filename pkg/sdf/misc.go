@@ -47,3 +47,24 @@ func Time() time.Duration {
 func FixedTime() time.Duration {
 	return fixedTime
 }
+
+func tileSheetExists(name string) bool {
+	if _, ok := assets.sheets[name]; ok {
+		return true
+	}
+	return false
+}
+
+func tileExists(name string) bool {
+	if _, ok := assets.tiles[name]; ok {
+		return true
+	}
+	return false
+}
+
+func animationExists(name string) bool {
+	if _, ok := assets.anims[name]; ok {
+		return true
+	}
+	return false
+}
