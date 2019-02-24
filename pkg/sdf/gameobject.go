@@ -17,7 +17,7 @@ type (
 	// GameObject -
 	GameObject struct {
 		name     string
-		pos      geom.Point2i
+		offset   geom.Point2i
 		oldState string
 		curState string
 		oldTile  IElem
@@ -73,7 +73,8 @@ func (o *GameObject) Tile() *Tile {
 // Copy -
 func (o *GameObject) Copy(x, y int) {
 	// o.curTile.Copy(x, y)
-	o.Tile().Copy(x, y)
+	p := o.offset.AddInt(x, y)
+	o.Tile().Copy(p.X, p.Y)
 }
 
 // Play -
@@ -119,4 +120,9 @@ func (o *GameObject) Suspend() {
 // Suspended -
 func (o *GameObject) Suspended() bool {
 	return o.suspended
+}
+
+// GetOffsetPtr -
+func (o *GameObject) GetOffsetPtr() (*int, *int) {
+	return &o.offset.X, &o.offset.Y
 }

@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image/color"
+	"time"
 
 	"github.com/macroblock/sdf/pkg/fonts/pixfm5x9normal"
 	"github.com/macroblock/sdf/pkg/sdf"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 var (
@@ -13,7 +16,7 @@ var (
 	tileSheet *sdf.TileSheet
 	// sprite0, sprite1, sprite2                *sdf.Sprite
 	anim0 *sdf.Animation
-	hero  *sdf.GameObject
+	hero  *Hero
 )
 
 // const (
@@ -65,26 +68,67 @@ func (o *game) Init() {
 	sdf.CreateAnimation("hero move S").Sequence("s move 0", "s move 1", "s move 0", "s move 2").StretchTo(1.0)
 	sdf.CreateAnimation("hero move W").Sequence("w move 0", "w move 1", "w move 0", "w move 2").StretchTo(1.0)
 	sdf.CreateAnimation("hero move E").Sequence("e move 0", "e move 1", "e move 0", "e move 2").StretchTo(1.0)
-	hero = sdf.NewGameObject("hero").
+
+	hero = NewHero(32, 32)
+}
+
+// Hero -
+type Hero struct {
+	*sdf.GameObject
+	tween sdf.Tween
+	x, y  int
+}
+
+// NewHero -
+func NewHero(x, y int) *Hero {
+	hero := &Hero{x: x, y: y}
+	hero.GameObject = sdf.NewGameObject("hero").
 		AddAnimation("idle", "hero idle").
 		AddAnimation("move N", "hero move N").
 		AddAnimation("move S", "hero move S").
 		AddAnimation("move W", "hero move W").
 		AddAnimation("move E", "hero move E")
 	hero.Play("move E")
+	return hero
+}
+
+// HandleEvents -
+func (o *Hero) HandleEvents() {
+	dx := sdf.PressedInt(sdf.InputRight) - sdf.PressedInt(sdf.InputLeft)
+	dy := sdf.PressedInt(sdf.InputDown) - sdf.PressedInt(sdf.InputUp)
+	state := "idle"
+	if dx != 0 {
+		state = "move W"
+		if dx > 0 {
+			state = "move E"
+		}
+
+	} else if dy != 0 {
+		state = "move N"
+		if dy > 0 {
+			state = "move S"
+		}
+	}
+	rest, ok := o.tween.Process(sdf.FixedTime())
+	_ = rest
+	if ok {
+		const len = 500
+		hero.Play(state)
+		xptr, yptr := hero.GetOffsetPtr()
+		switch state {
+		case "move N":
+			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr-1, *yptr-16-1)
+		case "move S":
+			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr+1, *yptr+16+1)
+		case "move W":
+			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr-1, *xptr-16-1)
+		case "move E":
+			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr+1, *xptr+16+1)
+		}
+	}
 }
 
 func (o *game) HandleEvents() {
-	// int start = SDL_GetTicks();
-	//     gameLoop->update();
-	//     int time = SDL_GetTicks() - start;
-	//     if (time < 0) continue; // if time is negative, the time probably overflew, so continue asap
-
-	//     int sleepTime = gameLoop->millisecondsForFrame - time;
-	//     if (sleepTime > 0)
-	//     {
-	//         SDL_Delay(sleepTime);
-	// 	}
 }
 
 func (o *game) CleanUp() {
@@ -106,34 +150,50 @@ func (o *game) Render() {
 			hero.Suspend()
 		}
 	}
-
-	dx := sdf.PressedInt(sdf.InputRight) - sdf.PressedInt(sdf.InputLeft)
-	dy := sdf.PressedInt(sdf.InputDown) - sdf.PressedInt(sdf.InputUp)
-	state := "idle"
-	if dx != 0 {
-		state = "move W"
-		if dx > 0 {
-			state = "move E"
-		}
-
-	} else if dy != 0 {
-		state = "move N"
-		if dy > 0 {
-			state = "move S"
-		}
-	}
-	hero.Play(state)
+	hero.HandleEvents()
 
 	sdf.Renderer().Clear()
-	tex.Copy(5, 5)
-	font.Print(0, 100, "Test String")
+	drawGrid()
+	// tex.Copy(5, 5)
+	// font.Print(0, 100, "Test String")
 
-	hero.Copy(150, 10)
+	hero.Copy(hero.x, hero.y)
 
 	// spriteN.Copy(150, 40)
 	// spriteS.Copy(150, 70)
 	// spriteE.Copy(150, 100)
 	anim0.Tile(sdf.FixedTime()).Copy(150, 100)
+}
+
+func drawGrid() {
+	const (
+		cellW = 16
+		cellH = 16
+	)
+	c1 := color.RGBA{255, 255, 0, 127}
+	c2 := color.RGBA{0, 255, 255, 127}
+	r := sdf.Renderer()
+	r.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+	w, h := sdf.Size()
+	x := 0
+	for x < w {
+		drawLine(r, x, 0, x, h-1, c1)
+		x += cellW
+		drawLine(r, x-1, 0, x-1, h-1, c2)
+	}
+	y := 0
+	for y < h {
+		drawLine(r, 0, y, w-1, y, c1)
+		y += cellH
+		drawLine(r, 0, y-1, w-1, y-1, c2)
+	}
+	drawLine(r, -1, -1, -1, -1, color.RGBA{0, 0, 0, 255})
+}
+
+func drawLine(rend *sdl.Renderer, x1, y1, x2, y2 int, c color.Color) {
+	r, g, b, a := c.RGBA()
+	rend.SetDrawColor(uint8(r), uint8(g), uint8(b), uint8(a))
+	rend.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
 }
 
 func main() {

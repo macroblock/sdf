@@ -14,3 +14,16 @@ func SetScale(x, y float64) {
 func Renderer() *sdl.Renderer {
 	return sdf.renderer
 }
+
+// Size -
+func Size() (int, int) {
+	if !Ok() {
+		return -1, -1
+	}
+	w, h, err := sdf.renderer.GetOutputSize()
+	if err != nil {
+		setError(err)
+		return -1, -1
+	}
+	return int(w), int(h)
+}
