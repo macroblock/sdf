@@ -37,7 +37,7 @@ func (o *game) Init() {
 	tex = sdf.LoadTexture("../../assets/testsheet.png")
 
 	font = sdf.CreatePixelFont(pixfm5x9normal.Font)
-	font.SetScale(2)
+	// font.SetScale(2)
 
 	sdf.SetScale(3, 3)
 
@@ -70,6 +70,8 @@ func (o *game) Init() {
 	sdf.CreateAnimation("hero move E").Sequence("e move 0", "e move 1", "e move 0", "e move 2").StretchTo(1.0)
 
 	hero = NewHero(32, 32)
+
+	sdf.StopTextInput()
 }
 
 // Hero -
@@ -157,12 +159,30 @@ func (o *game) Render() {
 	// tex.Copy(5, 5)
 	// font.Print(0, 100, "Test String")
 
-	hero.Copy(hero.x, hero.y)
+	// hero.Copy(hero.x, hero.y)
 
 	// spriteN.Copy(150, 40)
 	// spriteS.Copy(150, 70)
 	// spriteE.Copy(150, 100)
 	anim0.Tile(sdf.FixedTime()).Copy(150, 100)
+
+	a := sdf.JustPressedInt(sdf.InputCopy)
+	b := sdf.PressedInt(sdf.InputCopy)
+	msg := fmt.Sprintf("copy pressed once %v; down %v", a, b)
+	font.Print(0, 10, msg)
+
+	a = sdf.JustPressedInt(sdf.InputPaste)
+	b = sdf.PressedInt(sdf.InputPaste)
+	msg = fmt.Sprintf("paste pressed once %v; down %v", a, b)
+	font.Print(0, 20, msg)
+
+	a = sdf.JustPressedInt(sdf.InputDelete)
+	b = sdf.PressedInt(sdf.InputDelete)
+	msg = fmt.Sprintf("delete pressed once %v; down %v", a, b)
+	font.Print(0, 30, msg)
+
+	// fmt.Printf("%q\n", sdf.TextInput())
+	font.Print(0, 50, sdf.TextInput())
 }
 
 func drawGrid() {
