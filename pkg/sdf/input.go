@@ -2,7 +2,6 @@ package sdf
 
 import (
 	"time"
-	"unicode/utf8"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -101,6 +100,7 @@ func IsTextInput() {
 
 func processInput() {
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		callHandleEvent(on.obj, event)
 		switch ev := event.(type) {
 		case *sdl.QuitEvent:
 			_ = ev
@@ -164,18 +164,18 @@ func processInput() {
 			keyState[input].timestamp = time.Since(programStart)
 			keyState[input].justPressed = pressed
 			// keyState[input].timestamp = time.Duration(ev.Timestamp) * time.Millisecond
-		case *sdl.TextInputEvent:
-			slice := ev.Text[:]
-			for len(slice) > 0 {
-				r, size := utf8.DecodeRune(slice)
-				// fmt.Printf("%c %v\n", r, size)
-				if r == '\x00' {
-					break
-				}
-				textInput += string(r)
-				slice = slice[size:]
-			}
-			// textInput += string(slice)
+		// case *sdl.TextInputEvent:
+		// 	slice := ev.Text[:]
+		// 	for len(slice) > 0 {
+		// 		r, size := utf8.DecodeRune(slice)
+		// 		// fmt.Printf("%c %v\n", r, size)
+		// 		if r == '\x00' {
+		// 			break
+		// 		}
+		// 		textInput += string(r)
+		// 		slice = slice[size:]
+		// 	}
+		// textInput += string(slice)
 		case *sdl.TextEditingEvent:
 		} // switch ev := event.(type)
 	}

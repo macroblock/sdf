@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"time"
+	"unicode/utf8"
 
 	"github.com/macroblock/sdf/pkg/fonts/pixfm5x9normal"
 	"github.com/macroblock/sdf/pkg/sdf"
@@ -71,7 +72,7 @@ func (o *game) Init() {
 
 	hero = NewHero(32, 32)
 
-	sdf.StopTextInput()
+	// sdf.StopTextInput()
 }
 
 // Hero -
@@ -130,7 +131,37 @@ func (o *Hero) HandleEvents() {
 	}
 }
 
-func (o *game) HandleEvents() {
+func (o *game) HandleEvent(ev sdl.Event) {
+	switch ev := ev.(type) {
+	case *sdl.KeyboardEvent:
+		if ev.Type != sdl.KEYDOWN {
+			return
+		}
+		fmt.Printf("keysym %q\n", ev.Keysym.Sym)
+	case *sdl.TextInputEvent:
+		textInput := ""
+		slice := ev.Text[:]
+		for len(slice) > 0 {
+			r, size := utf8.DecodeRune(slice)
+			// fmt.Printf("%c %v\n", r, size)
+			if r == '\x00' {
+				break
+			}
+			textInput += string(r)
+			slice = slice[size:]
+		}
+		fmt.Printf("text input %q\n", textInput)
+		// textInput += string(slice)
+	}
+	// e := sdf.Event{}
+	// e.Align = 1
+	// e.Type = 2
+	// e.Mod = 3
+	// e.Rune = rune(4)
+	// fmt.Println(e)
+	// x := int64(0)
+	// x = e.BinaryKey()
+	// fmt.Printf("%x\n", x)
 }
 
 func (o *game) CleanUp() {

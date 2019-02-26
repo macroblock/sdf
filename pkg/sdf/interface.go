@@ -1,5 +1,7 @@
 package sdf
 
+import "github.com/veandco/go-sdl2/sdl"
+
 type (
 	iInit interface {
 		Init()
@@ -14,7 +16,7 @@ type (
 		Render()
 	}
 	iHandleEvents interface {
-		HandleEvents()
+		HandleEvent(ev sdl.Event)
 	}
 
 	// IElem -
@@ -48,8 +50,8 @@ func callRender(i interface{}) {
 	}
 }
 
-func callHandleEvents(i interface{}) {
+func callHandleEvent(i interface{}, ev sdl.Event) {
 	if i, ok := i.(iHandleEvents); ok {
-		i.HandleEvents()
+		i.HandleEvent(ev)
 	}
 }
