@@ -1,16 +1,21 @@
 package sdf
 
+import "time"
+
 type (
-	// Event -
-	Event struct {
-		Align uint8
-		Type  uint8
-		Mod   uint16
-		Rune  rune
+	// BinaryKey -
+	BinaryKey int64
+
+	// KeyboardEvent -
+	KeyboardEvent struct {
+		Timestamp time.Duration
+		Key       int
+		Rune      rune
+		Mod       uint16
 	}
 )
 
 // BinaryKey -
-func (o Event) BinaryKey() int64 {
-	return (((int64(o.Align)<<8)|int64(o.Type))<<16|int64(o.Mod))<<32 | int64(o.Rune)
+func (o KeyboardEvent) BinaryKey() BinaryKey {
+	return BinaryKey(o.Mod)<<32 | BinaryKey(o.Rune)
 }

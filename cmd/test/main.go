@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"time"
-	"unicode/utf8"
 
 	"github.com/macroblock/sdf/pkg/fonts/pixfm5x9normal"
 	"github.com/macroblock/sdf/pkg/sdf"
@@ -131,28 +130,28 @@ func (o *Hero) HandleEvents() {
 	}
 }
 
-func (o *game) HandleEvent(ev sdl.Event) {
-	switch ev := ev.(type) {
-	case *sdl.KeyboardEvent:
-		if ev.Type != sdl.KEYDOWN {
-			return
-		}
-		fmt.Printf("keysym %q\n", ev.Keysym.Sym)
-	case *sdl.TextInputEvent:
-		textInput := ""
-		slice := ev.Text[:]
-		for len(slice) > 0 {
-			r, size := utf8.DecodeRune(slice)
-			// fmt.Printf("%c %v\n", r, size)
-			if r == '\x00' {
-				break
-			}
-			textInput += string(r)
-			slice = slice[size:]
-		}
-		fmt.Printf("text input %q\n", textInput)
-		// textInput += string(slice)
-	}
+func (o *game) HandleEvent(ev sdf.KeyboardEvent) {
+	// switch ev := ev.(type) {
+	// case *sdl.KeyboardEvent:
+	// 	if ev.Type != sdl.KEYDOWN {
+	// 		return
+	// 	}
+	// 	fmt.Printf("keysym %q\n", ev.Keysym.Sym)
+	// case *sdl.TextInputEvent:
+	// 	textInput := ""
+	// 	slice := ev.Text[:]
+	// 	for len(slice) > 0 {
+	// 		r, size := utf8.DecodeRune(slice)
+	// 		// fmt.Printf("%c %v\n", r, size)
+	// 		if r == '\x00' {
+	// 			break
+	// 		}
+	// 		textInput += string(r)
+	// 		slice = slice[size:]
+	// 	}
+	// 	fmt.Printf("text input %q\n", textInput)
+	// 	// textInput += string(slice)
+	// }
 	// e := sdf.Event{}
 	// e.Align = 1
 	// e.Type = 2
@@ -162,6 +161,7 @@ func (o *game) HandleEvent(ev sdl.Event) {
 	// x := int64(0)
 	// x = e.BinaryKey()
 	// fmt.Printf("%x\n", x)
+	// fmt.Printf("%v, %v, %q\n", ev.Timestamp, ev.Mod, ev.Rune)
 }
 
 func (o *game) CleanUp() {
@@ -169,6 +169,10 @@ func (o *game) CleanUp() {
 }
 
 func (o *game) Render() {
+	// if str, ok := sdf.Scanbuf(); ok {
+	// 	fmt.Println(str)
+	// }
+
 	if sdf.Pressed(sdf.InputCancel) {
 		sdf.Quit()
 	}
@@ -213,7 +217,7 @@ func (o *game) Render() {
 	font.Print(0, 30, msg)
 
 	// fmt.Printf("%q\n", sdf.TextInput())
-	font.Print(0, 50, sdf.TextInput())
+	// font.Print(0, 50, sdf.TextInput())
 }
 
 func drawGrid() {

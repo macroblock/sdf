@@ -1,182 +1,194 @@
 package sdf
 
 import (
+	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 // -
 const (
-	InputAny tInput = iota
-	InputAccept
-	InputCancel
-	InputSelect
-	InputUp
-	InputDown
-	InputLeft
-	InputRight
-	InputPause
-	InputDelete
-	InputInsert
-	InputCopy
-	InputPaste
-	InputCut
+	InputAny    = 0 // tInput = iota
+	InputAccept = sdl.SCANCODE_KP_ENTER
+	InputCancel = sdl.SCANCODE_ESCAPE
+	InputSelect = sdl.SCANCODE_TAB
+	InputUp     = sdl.SCANCODE_UP
+	InputDown   = sdl.SCANCODE_DOWN
+	InputLeft   = sdl.SCANCODE_LEFT
+	InputRight  = sdl.SCANCODE_RIGHT
+	InputPause  = sdl.SCANCODE_P
+	InputDelete = sdl.SCANCODE_DELETE
+	InputInsert = sdl.SCANCODE_INSERT
+	InputCopy   = sdl.SCANCODE_COPY
+	InputPaste  = sdl.SCANCODE_PASTE
+	InputCut    = sdl.SCANCODE_CUT
 	maxInputKey
 )
 
 type (
 	tInput    uint
 	tKeyState struct {
-		pressed     bool
 		justPressed bool
 		timestamp   time.Duration
+		scan        int
 	}
 )
 
-var textInput string
-
-var keyState []tKeyState
+var (
+	eventQueue []KeyboardEvent
+	scanbuf    []tKeyState
+)
 
 func init() {
-	keyState = make([]tKeyState, maxInputKey)
+	eventQueue = make([]KeyboardEvent, 0, 32)
 }
 
 // Pressed -
-func Pressed(input tInput) bool {
-	if input >= maxInputKey {
-		return false
+func Pressed(scan int) bool {
+	for i := range scanbuf {
+		if scanbuf[i].scan == scan {
+			return true
+		}
 	}
-	return keyState[input].pressed
+	return false
 }
 
 // PressedInt -
-func PressedInt(input tInput) int {
-	if input >= maxInputKey || !keyState[input].pressed {
-		return 0
+func PressedInt(scan int) int {
+	for i := range scanbuf {
+		if scanbuf[i].scan == scan {
+			return 1
+		}
 	}
-	return 1
+	return 0
 }
 
 // JustPressed -
-func JustPressed(input tInput) bool {
-	if input >= maxInputKey {
-		return false
+func JustPressed(scan int) bool {
+	for i := range scanbuf {
+		if scanbuf[i].scan == scan && scanbuf[i].justPressed {
+			scanbuf[i].justPressed = false
+			return true
+		}
 	}
-	ret := !keyState[input].justPressed
-	keyState[input].justPressed = false
-	return ret
+	return false
 }
 
 // JustPressedInt -
-func JustPressedInt(input tInput) int {
-	if input >= maxInputKey || !keyState[input].justPressed {
-		return 0
+func JustPressedInt(scan int) int {
+	for i := range scanbuf {
+		if scanbuf[i].scan == scan && scanbuf[i].justPressed {
+			scanbuf[i].justPressed = false
+			return 1
+		}
 	}
-	keyState[input].justPressed = false
-	return 1
-}
-
-// StartTextInput -
-func StartTextInput() {
-	textInput = ""
-	sdl.StartTextInput()
-}
-
-// StopTextInput -
-func StopTextInput() {
-	sdl.StopTextInput()
-}
-
-// TextInput -
-func TextInput() string {
-	return textInput
-}
-
-// IsTextInput -
-func IsTextInput() {
-	sdl.IsTextInputActive()
+	return 0
 }
 
 func processInput() {
+	// lastKbdEventIndex := -1
+	lastKbdEvent := (*KeyboardEvent)(nil)
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		callHandleEvent(on.obj, event)
 		switch ev := event.(type) {
 		case *sdl.QuitEvent:
 			_ = ev
 			sdf.isRunning = false
 		case *sdl.KeyboardEvent:
-			input := InputAny
-			switch {
-			case ev.Keysym.Mod&sdl.KMOD_CTRL != 0:
-				ev.Keysym.Mod |= sdl.KMOD_CTRL
-			case ev.Keysym.Mod&sdl.KMOD_SHIFT != 0:
-				ev.Keysym.Mod |= sdl.KMOD_SHIFT
-			case ev.Keysym.Mod&sdl.KMOD_ALT != 0:
-				ev.Keysym.Mod |= sdl.KMOD_ALT
-			}
-			switch ev.Keysym.Mod {
-			case 0:
-				switch ev.Keysym.Sym {
-				case sdl.K_SPACE, sdl.K_RETURN:
-					input = InputAccept
-				case sdl.K_ESCAPE:
-					input = InputCancel
-				case sdl.K_TAB:
-					input = InputSelect
-				case sdl.K_UP:
-					input = InputUp
-				case sdl.K_DOWN:
-					input = InputDown
-				case sdl.K_LEFT:
-					input = InputLeft
-				case sdl.K_RIGHT:
-					input = InputRight
-				case sdl.K_p, sdl.K_PAUSE:
-					input = InputPause
-				case sdl.K_DELETE, sdl.K_BACKSPACE:
-					input = InputDelete
-				case sdl.K_INSERT:
-					input = InputInsert
-				} // switch ev.Keysym.Sym
-			case sdl.KMOD_CTRL:
-				switch ev.Keysym.Sym {
-				case sdl.K_INSERT, sdl.K_c:
-					input = InputCopy
-				case sdl.K_v:
-					input = InputPaste
-				case sdl.K_x:
-					input = InputCut
-				} // switch ev.Keysym.Sym {
-			case sdl.KMOD_SHIFT:
-				switch ev.Keysym.Sym {
-				case sdl.K_INSERT:
-					input = InputPaste
-				} // switch ev.Keysym.Sym {
-			case sdl.KMOD_ALT:
-				switch ev.Keysym.Sym {
-				case sdl.K_INSERT:
-					input = InputCut
-				} // switch ev.Keysym.Sym {
-			} // switch ev.Keysym.Mod
 			pressed := (ev.Type == sdl.KEYDOWN)
-			keyState[input].pressed = pressed
-			keyState[input].timestamp = time.Since(programStart)
-			keyState[input].justPressed = pressed
-			// keyState[input].timestamp = time.Duration(ev.Timestamp) * time.Millisecond
-		// case *sdl.TextInputEvent:
-		// 	slice := ev.Text[:]
-		// 	for len(slice) > 0 {
-		// 		r, size := utf8.DecodeRune(slice)
-		// 		// fmt.Printf("%c %v\n", r, size)
-		// 		if r == '\x00' {
-		// 			break
-		// 		}
-		// 		textInput += string(r)
-		// 		slice = slice[size:]
-		// 	}
-		// textInput += string(slice)
+			time := time.Since(programStart)
+			if pressed {
+				// lastKbdEventIndex = len(eventQueue)
+				eventQueue = append(eventQueue, KeyboardEvent{})
+				lastKbdEvent = &eventQueue[len(eventQueue)-1]
+				lastKbdEvent.Key = int(ev.Keysym.Scancode)
+				lastKbdEvent.Rune = utf8.RuneError
+				lastKbdEvent.Mod = ev.Keysym.Mod
+			}
+			scanbuf = updateKey(scanbuf, int(ev.Keysym.Scancode), time, pressed)
+
+		case *sdl.TextInputEvent:
+			r, _ := utf8.DecodeRune(ev.Text[:])
+			// if lastKbdEventIndex == -1 {
+			if lastKbdEvent == nil {
+				fmt.Printf("kbd input event warning %q\n", r)
+				// lastKbdEventIndex = len(eventQueue)
+				eventQueue = append(eventQueue, KeyboardEvent{})
+				lastKbdEvent = &eventQueue[len(eventQueue)-1]
+				// eventQueue[lastKbdEventIndex].Mod = 1
+			}
+			if r != utf8.RuneError {
+				// eventQueue[lastKbdEventIndex].Rune = r
+				lastKbdEvent.Rune = r
+			}
 		case *sdl.TextEditingEvent:
 		} // switch ev := event.(type)
+	} // for PollEvent
+	for i := range eventQueue {
+		callHandleEvent(on.obj, eventQueue[i])
 	}
+	scanbuf = packKey(scanbuf)
+	eventQueue = eventQueue[:0]
+}
+
+func decodeRuneBuffer(buf []byte) string {
+	s := ""
+	for len(buf) > 0 {
+		r, size := utf8.DecodeRune(buf)
+		// fmt.Printf("%c %v\n", r, size)
+		if r == '\x00' {
+			break
+		}
+		s += string(r)
+		buf = buf[size:]
+	}
+	return s
+}
+
+func updateKey(buf []tKeyState, scan int, time time.Duration, pressed bool) []tKeyState {
+	for i := range buf {
+		sc := buf[i].scan
+		if sc < 0 || sc != scan {
+			continue
+		}
+		if pressed {
+			buf[i].timestamp = time
+			buf[i].justPressed = true
+		} else {
+			buf[i].scan = -1
+		}
+		return buf
+	}
+	if pressed {
+		buf = append(buf, tKeyState{scan: scan, timestamp: time, justPressed: true})
+	}
+	return buf
+}
+
+func packKey(buf []tKeyState) []tKeyState {
+	o := 0
+	for i := range buf {
+		if buf[i].scan < 0 {
+			continue
+		}
+		if i != o {
+			buf[o] = buf[i]
+		}
+		o++
+	}
+	buf = buf[:o]
+	return buf
+}
+
+// Scanbuf -
+func Scanbuf() (string, bool) {
+	if len(scanbuf) == 0 {
+		return "", false
+	}
+	s := "--------------\n"
+	for i := range scanbuf {
+		s += fmt.Sprintf("%v, %v\n", scanbuf[i].scan, scanbuf[i].justPressed)
+	}
+	return s, true
 }
