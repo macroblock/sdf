@@ -18,6 +18,8 @@ const (
 	FlipVertical
 )
 
+var tilePrefix = ""
+
 type (
 	// Tile -
 	Tile struct {
@@ -28,6 +30,11 @@ type (
 	}
 )
 
+// SetTilePrefix -
+func SetTilePrefix(prefix string) {
+	tilePrefix = prefix
+}
+
 // CreateTile -
 func CreateTile(name string, x0, y0 int, extend *geom.Rect2i, flip FlipMode) *Tile {
 	if !Ok() {
@@ -37,6 +44,10 @@ func CreateTile(name string, x0, y0 int, extend *geom.Rect2i, flip FlipMode) *Ti
 		setError(fmt.Errorf("current tile sheet is nil"))
 		return nil
 	}
+	if len(tilePrefix) > 0 {
+		name = tilePrefix + constNameSeparator + name
+	}
+	name = assets.currentTileSheet.name + constNameSeparator + name
 	if tileExists(name) {
 		setError(fmt.Errorf("tile %q already exists", name))
 		return nil

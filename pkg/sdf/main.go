@@ -8,6 +8,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const constNameSeparator = "/"
+
 var (
 	sdf          Type
 	on           handler

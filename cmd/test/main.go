@@ -41,7 +41,7 @@ func (o *game) Init() {
 
 	sdf.SetScale(3, 3)
 
-	tileSheet = sdf.LoadTileSheet("test tile sheet", -8, -6, "../../assets/testsheet.png")
+	tileSheet = sdf.LoadTileSheet("ff", -8, -6, "../../assets/testsheet.png")
 
 	sdf.CreateTile("idle 0", 1, 0, nil, 0)
 	sdf.CreateTile("idle 1", 3, 2, nil, 0)
@@ -62,15 +62,49 @@ func (o *game) Init() {
 	sdf.CreateTile("e move 1", 6, 0, nil, sdf.FlipHorizontal)
 	sdf.CreateTile("e move 2", 0, 1, nil, sdf.FlipHorizontal)
 
-	anim0 = sdf.CreateAnimation("test move").Sequence("n move 0", "n move 1", "n move 0", "n move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero idle").Sequence("idle 0", "idle 1").StretchTo(1.0)
-	sdf.CreateAnimation("hero move N").Sequence("n move 0", "n move 1", "n move 0", "n move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move S").Sequence("s move 0", "s move 1", "s move 0", "s move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move W").Sequence("w move 0", "w move 1", "w move 0", "w move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move E").Sequence("e move 0", "e move 1", "e move 0", "e move 2").StretchTo(1.0)
+	anim0 = sdf.CreateAnimation("test move").Sequence("ff/n move 0", "ff/n move 1", "ff/n move 0", "ff/n move 2").StretchTo(1.0)
+	sdf.CreateAnimation("hero idle").Sequence("ff/idle 0", "ff/idle 1").StretchTo(1.0)
+	sdf.CreateAnimation("hero move N").Sequence("ff/n move 0", "ff/n move 1", "ff/n move 0", "ff/n move 2").StretchTo(1.0)
+	sdf.CreateAnimation("hero move S").Sequence("ff/s move 0", "ff/s move 1", "ff/s move 0", "ff/s move 2").StretchTo(1.0)
+	sdf.CreateAnimation("hero move W").Sequence("ff/w move 0", "ff/w move 1", "ff/w move 0", "ff/w move 2").StretchTo(1.0)
+	sdf.CreateAnimation("hero move E").Sequence("ff/e move 0", "ff/e move 1", "ff/e move 0", "ff/e move 2").StretchTo(1.0)
+
+	// tileSheet = sdf.LoadTileSheet("girl", -4, -5, "../../assets/girl-03.png")
+
+	// sdf.SetTilePrefix("s move")
+	// sdf.CreateTile("0", 0, 0, nil, 0)
+	// sdf.CreateTile("1", 1, 0, nil, 0)
+	// sdf.CreateTile("2", 3, 0, nil, 0)
+
+	// sdf.SetTilePrefix("w move")
+	// sdf.CreateTile("0", 0, 1, nil, 0)
+	// sdf.CreateTile("1", 1, 1, nil, 0)
+	// sdf.CreateTile("2", 3, 1, nil, 0)
+
+	// sdf.SetTilePrefix("e move")
+	// sdf.CreateTile("0", 0, 1, nil, sdf.FlipHorizontal)
+	// sdf.CreateTile("1", 1, 1, nil, sdf.FlipHorizontal)
+	// sdf.CreateTile("2", 3, 1, nil, sdf.FlipHorizontal)
+
+	// sdf.SetTilePrefix("n move")
+	// sdf.CreateTile("0", 0, 2, nil, 0)
+	// sdf.CreateTile("1", 1, 2, nil, 0)
+	// sdf.CreateTile("2", 3, 2, nil, 0)
+
+	// sdf.SetTilePrefix("idle")
+	// sdf.CreateTile("0", 0, 3, nil, 0)
+	// sdf.CreateTile("1", 1, 3, nil, 0)
+	// sdf.CreateTile("2", 2, 3, nil, 0)
+	// sdf.CreateTile("3", 3, 3, nil, 0)
+
+	// sdf.CreateAnimation("girl/idle").Sequence("/0", "/1", "/2", "/3").StretchTo(0.5)
+	// sdf.CreateAnimation("girl move N").Sequence("girl/n move/0", "girl/n move/1", "girl/n move/0", "girl/n move/2").StretchTo(0.5)
+	// sdf.CreateAnimation("girl move S").Sequence("girl/s move/0", "girl/s move/1", "girl/s move/0", "girl/s move/2").StretchTo(0.5)
+	// sdf.CreateAnimation("girl move W").Sequence("girl/w move/0", "girl/w move/1", "girl/w move/0", "girl/w move/2").StretchTo(0.5)
+	// sdf.CreateAnimation("girl move E").Sequence("girl/e move/0", "girl/e move/1", "girl/e move/0", "girl/e move/2").StretchTo(0.5)
 
 	hero = NewHero(32, 32)
-
+	// hero = NewGirl(32, 32)
 	// sdf.StopTextInput()
 }
 
@@ -90,6 +124,19 @@ func NewHero(x, y int) *Hero {
 		AddAnimation("move S", "hero move S").
 		AddAnimation("move W", "hero move W").
 		AddAnimation("move E", "hero move E")
+	hero.Play("move E")
+	return hero
+}
+
+// NewGirl -
+func NewGirl(x, y int) *Hero {
+	hero := &Hero{x: x, y: y}
+	hero.GameObject = sdf.NewGameObject("girl").
+		AddAnimation("idle", "girl idle").
+		AddAnimation("move N", "girl move N").
+		AddAnimation("move S", "girl move S").
+		AddAnimation("move W", "girl move W").
+		AddAnimation("move E", "girl move E")
 	hero.Play("move E")
 	return hero
 }
@@ -114,18 +161,18 @@ func (o *Hero) HandleEvents() {
 	rest, ok := o.tween.Process(sdf.FixedTime())
 	_ = rest
 	if ok {
-		const len = 500
+		const len = 250
 		hero.Play(state)
 		xptr, yptr := hero.GetOffsetPtr()
 		switch state {
 		case "move N":
-			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr-1, *yptr-16-1)
+			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr-1, *yptr-16)
 		case "move S":
-			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr+1, *yptr+16+1)
+			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr+1, *yptr+16)
 		case "move W":
-			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr-1, *xptr-16-1)
+			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr-1, *xptr-16)
 		case "move E":
-			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr+1, *xptr+16+1)
+			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr+1, *xptr+16)
 		}
 	}
 }
@@ -194,7 +241,7 @@ func (o *game) Render() {
 	// tex.Copy(5, 5)
 	// font.Print(0, 100, "Test String")
 
-	// hero.Copy(hero.x, hero.y)
+	hero.Copy(hero.x, hero.y)
 
 	// spriteN.Copy(150, 40)
 	// spriteS.Copy(150, 70)

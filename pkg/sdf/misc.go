@@ -68,3 +68,9 @@ func animationExists(name string) bool {
 	}
 	return false
 }
+
+// func absName(name string) []string {
+// 	if assets.currentTileSheet == nil {
+// 		return nil
+// 	}
+// }

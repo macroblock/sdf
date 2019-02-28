@@ -28,11 +28,17 @@ func (o *Tween) Reset(pval *int, t0, dur time.Duration, v0, v1 int) {
 
 // Process -
 func (o *Tween) Process(t time.Duration) (time.Duration, bool) {
+	if o.pval == nil {
+		return 0, true
+	}
 	t -= o.startTime
-	if t < 0 {
+	if t <= 0 {
+		*o.pval = o.v0
 		return 0, false
 	}
 	if t >= o.duration {
+		// fmt.Println("tween : ", o.v1)
+		*o.pval = o.v1
 		return t - o.duration, true
 	}
 	k := float64(t) / float64(o.duration)

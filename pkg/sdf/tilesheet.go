@@ -9,6 +9,7 @@ import (
 type (
 	// TileSheet -
 	TileSheet struct {
+		name      string
 		tex       *Texture
 		tileSize  geom.Point2i
 		tilesPerW int
@@ -39,7 +40,7 @@ func LoadTileSheet(name string, tileW, tileH int, path string) *TileSheet {
 	if tileH < 0 {
 		tileH = tex.H / -tileH
 	}
-	ret := &TileSheet{}
+	ret := &TileSheet{name: name}
 	ret.tex = tex
 	ret.tileSize = geom.InitPoint2i(tileW, tileH)
 	ret.tilesPerW = tilesPerW
