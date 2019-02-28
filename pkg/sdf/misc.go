@@ -1,6 +1,9 @@
 package sdf
 
-import "time"
+import (
+	"path"
+	"time"
+)
 
 // RefCounter -
 type RefCounter struct {
@@ -67,6 +70,28 @@ func animationExists(name string) bool {
 		return true
 	}
 	return false
+}
+
+func joinPaths(a, b string) string {
+	if path.IsAbs(b) {
+		return path.Clean(b)
+	}
+	return path.Join(a, b)
+}
+
+// AbsPath -
+func AbsPath(path string) string {
+	return joinPaths(sdf.curTilePath, path)
+}
+
+// SetTilePath -
+func SetTilePath(path string) {
+	sdf.curTilePath = AbsPath(path)
+}
+
+// Path -
+func Path() string {
+	return sdf.curTilePath
 }
 
 // func absName(name string) []string {

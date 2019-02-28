@@ -11,14 +11,12 @@ import (
 // FlipMode -
 type FlipMode int
 
-// -
+// can be ORed
 const (
 	FlipNone FlipMode = iota
 	FlipHorizontal
 	FlipVertical
 )
-
-var tilePrefix = ""
 
 type (
 	// Tile -
@@ -30,13 +28,8 @@ type (
 	}
 )
 
-// SetTilePrefix -
-func SetTilePrefix(prefix string) {
-	tilePrefix = prefix
-}
-
-// CreateTile -
-func CreateTile(name string, x0, y0 int, extend *geom.Rect2i, flip FlipMode) *Tile {
+// CreateTile - see TileSheet.InitTile function
+func CreateTile(name string, x, y int, extend *geom.Rect2i, flip FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -44,15 +37,12 @@ func CreateTile(name string, x0, y0 int, extend *geom.Rect2i, flip FlipMode) *Ti
 		setError(fmt.Errorf("current tile sheet is nil"))
 		return nil
 	}
-	if len(tilePrefix) > 0 {
-		name = tilePrefix + constNameSeparator + name
-	}
-	name = assets.currentTileSheet.name + constNameSeparator + name
+	name = joinPaths("/", name)
 	if tileExists(name) {
 		setError(fmt.Errorf("tile %q already exists", name))
 		return nil
 	}
-	tile := assets.currentTileSheet.initTile(name, x0, y0, extend, flip)
+	tile := assets.currentTileSheet.InitTile(name, x, y, extend, flip)
 	if tile == nil {
 		return nil
 	}

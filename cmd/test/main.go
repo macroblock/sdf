@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"sort"
 	"time"
 
 	"github.com/macroblock/sdf/pkg/fonts/pixfm5x9normal"
@@ -19,15 +20,6 @@ var (
 	hero  *Hero
 )
 
-// const (
-// 	stateN int = iota
-// 	stateS
-// 	stateW
-// 	stateE
-// 	stateIdle
-// 	maxState
-// )
-
 type game struct {
 }
 
@@ -43,31 +35,29 @@ func (o *game) Init() {
 
 	tileSheet = sdf.LoadTileSheet("ff", -8, -6, "../../assets/testsheet.png")
 
-	sdf.CreateTile("idle 0", 1, 0, nil, 0)
-	sdf.CreateTile("idle 1", 3, 2, nil, 0)
+	sdf.SetTilePath("/ff/move")
+	motion := sdf.BuildTileTemplate().
+		Tile(0, nil, 0).
+		Tile(1, nil, 0).
+		Tile(2, nil, 0).
+		Tile(1, nil, 0)
 
-	sdf.CreateTile("n move 0", 4, 0, nil, 0)
-	sdf.CreateTile("n move 1", 3, 0, nil, 0)
-	sdf.CreateTile("n move 2", 5, 0, nil, 0)
+	motion.Build("S", 0, 0)
+	motion.Build("N", 3, 0)
+	motion.Build("W", 6, 0)
+	motion.Build("E", 6, sdf.FlipHorizontal)
 
-	sdf.CreateTile("s move 0", 1, 0, nil, 0)
-	sdf.CreateTile("s move 1", 0, 0, nil, 0)
-	sdf.CreateTile("s move 2", 2, 0, nil, 0)
+	sdf.SetTilePath("/ff")
+	sdf.BuildTileSet("idle", 0).
+		Tile(12, nil, 0).
+		Tile(15, nil, 0)
 
-	sdf.CreateTile("w move 0", 7, 0, nil, 0)
-	sdf.CreateTile("w move 1", 6, 0, nil, 0)
-	sdf.CreateTile("w move 2", 0, 1, nil, 0)
-
-	sdf.CreateTile("e move 0", 7, 0, nil, sdf.FlipHorizontal)
-	sdf.CreateTile("e move 1", 6, 0, nil, sdf.FlipHorizontal)
-	sdf.CreateTile("e move 2", 0, 1, nil, sdf.FlipHorizontal)
-
-	anim0 = sdf.CreateAnimation("test move").Sequence("ff/n move 0", "ff/n move 1", "ff/n move 0", "ff/n move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero idle").Sequence("ff/idle 0", "ff/idle 1").StretchTo(1.0)
-	sdf.CreateAnimation("hero move N").Sequence("ff/n move 0", "ff/n move 1", "ff/n move 0", "ff/n move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move S").Sequence("ff/s move 0", "ff/s move 1", "ff/s move 0", "ff/s move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move W").Sequence("ff/w move 0", "ff/w move 1", "ff/w move 0", "ff/w move 2").StretchTo(1.0)
-	sdf.CreateAnimation("hero move E").Sequence("ff/e move 0", "ff/e move 1", "ff/e move 0", "ff/e move 2").StretchTo(1.0)
+	anim0 = sdf.CreateAnimation("test move").Plain("/ff/move/S*").StretchTo(1.0)
+	sdf.CreateAnimation("hero idle").Plain("/ff/idle*").StretchTo(1.0)
+	sdf.CreateAnimation("hero move N").Plain("/ff/move/N*").StretchTo(1.0)
+	sdf.CreateAnimation("hero move S").Plain("/ff/move/S*").StretchTo(1.0)
+	sdf.CreateAnimation("hero move W").Plain("/ff/move/W*").StretchTo(1.0)
+	sdf.CreateAnimation("hero move E").Plain("/ff/move/E*").StretchTo(1.0)
 
 	// tileSheet = sdf.LoadTileSheet("girl", -4, -5, "../../assets/girl-03.png")
 
@@ -106,6 +96,12 @@ func (o *game) Init() {
 	hero = NewHero(32, 32)
 	// hero = NewGirl(32, 32)
 	// sdf.StopTextInput()
+
+	list := sdf.ListAssets()
+	sort.Strings(list)
+	for _, s := range list {
+		fmt.Println(s)
+	}
 }
 
 // Hero -

@@ -28,6 +28,7 @@ type (
 		deltaUpdate time.Duration
 		window      *sdl.Window
 		renderer    *sdl.Renderer
+		curTilePath string
 	}
 
 	handler struct {
@@ -57,7 +58,7 @@ func Run(obj interface{}) error {
 		sdf.err = fmt.Errorf("sdf was not cleaned up correctly")
 		return sdf.err
 	}
-	sdf = Type{}
+	sdf = Type{curTilePath: "/"}
 
 	flags := uint32(0)
 

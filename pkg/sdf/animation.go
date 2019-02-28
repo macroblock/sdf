@@ -2,6 +2,8 @@ package sdf
 
 import (
 	"fmt"
+	"path"
+	"sort"
 	"time"
 )
 
@@ -72,8 +74,8 @@ func (o *Animation) Keyframe(t float64, tileName string) *Animation {
 	return o.KeyframeT(time.Duration(t*float64(time.Second)), tileName)
 }
 
-// Sequence -
-func (o *Animation) Sequence(tileNames ...string) *Animation {
+// Plain -
+func (o *Animation) Plain(tileNames ...string) *Animation {
 	if !Ok() {
 		return nil
 	}
@@ -81,14 +83,21 @@ func (o *Animation) Sequence(tileNames ...string) *Animation {
 	o.keyframes = nil
 	o.duration = 0
 	for _, name := range tileNames {
-		tile, ok := assets.tiles[name]
-		if !ok {
+		realNames := getRealTileNames(name)
+		if len(realNames) == 0 {
 			setError(fmt.Errorf("tile %q does not exist", name))
 			return nil
 		}
-		o.keyframes = append(o.keyframes, tKeyframe{o.duration, tile})
-		o.duration += defDuration
-	}
+		for _, name := range realNames {
+			tile, _ := assets.tiles[name]
+			// if !ok {
+			// 	setError(fmt.Errorf("tile %q does not exist", name))
+			// 	return nil
+			// }
+			o.keyframes = append(o.keyframes, tKeyframe{o.duration, tile})
+			o.duration += defDuration
+		} // realNames
+	} // tileNames
 	return o
 }
 
@@ -139,5 +148,19 @@ func (o *Animation) Tile(t time.Duration) *Tile {
 		ret = kf.tile
 	}
 	// fmt.Println("state: ", str, "time ", t)
+	return ret
+}
+
+func getRealTileNames(name string) []string {
+	tiles := assets.listTiles()
+	name = AbsPath(name)
+	ret := []string{}
+	for _, s := range tiles {
+		// fmt.Printf("%v; %v\n", name, s)
+		if ok, _ := path.Match(name, s); ok {
+			ret = append(ret, s)
+		}
+	}
+	sort.Strings(ret)
 	return ret
 }

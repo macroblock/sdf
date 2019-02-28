@@ -50,8 +50,11 @@ func LoadTileSheet(name string, tileW, tileH int, path string) *TileSheet {
 	return ret
 }
 
-// initTile -
-func (o *TileSheet) initTile(name string, x0, y0 int, extend *geom.Rect2i, flip FlipMode) *Tile {
+// InitTile - when x, y > 0 its behavior as usual.
+// When one of the ordinate < 0 then its modulus means an offset in current tile sheet.
+// In this case other ordinate must be zero, otherwise error will be raised.
+// In all cases count of elements started from 1 (not from zero).
+func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -59,12 +62,28 @@ func (o *TileSheet) initTile(name string, x0, y0 int, extend *geom.Rect2i, flip 
 		setError(fmt.Errorf("tile %q already exists", name))
 		return nil
 	}
+	switch {
+	default:
+		setError(fmt.Errorf("init tile %v, x=%v y=%v: incorrect x, y coordinate schema", name, x, y))
+	case x < 0 && y == 0:
+		x = -x - 1
+		y = x / o.tilesPerW
+		x = x % o.tilesPerW
+	case x < 0 && y == 0:
+		y = -y - 1
+		x = y % o.tilesPerW
+		y = y / o.tilesPerW
+	case x > 0 && y > 0:
+		x--
+		y--
+	} // switch
+
 	if extend == nil {
 		extend = &geom.Rect2i{}
 		*extend = geom.InitRect2i(0, 0, 1, 1)
 	}
 
-	origin := geom.InitPoint2i(x0, y0)
+	origin := geom.InitPoint2i(x, y)
 	bounds := extend.Add(origin)
 	bearing := origin.SubInt(bounds.X, bounds.Y)
 	tile := &Tile{

@@ -79,3 +79,59 @@ func (o *Assets) unloadResource(res *Texture) error {
 	unloadTexture(res)
 	return nil
 }
+
+func (o *Assets) listURIs() []string {
+	list := []string{}
+	for key := range o.byURI {
+		list = append(list, key)
+	}
+	return list
+}
+
+func (o *Assets) listTileSheets() []string {
+	list := []string{}
+	for key := range o.sheets {
+		list = append(list, key)
+	}
+	return list
+}
+
+func (o *Assets) listTiles() []string {
+	list := []string{}
+	for key := range o.tiles {
+		list = append(list, key)
+	}
+	return list
+}
+func (o *Assets) listAnimations() []string {
+	list := []string{}
+	for key := range o.anims {
+		list = append(list, key)
+	}
+	return list
+}
+
+// ListAssets -
+func ListAssets() []string {
+	list := assets.listURIs()
+	for i := range list {
+		list[i] = "  uri: " + list[i]
+	}
+	ret := list
+	list = assets.listTileSheets()
+	for i := range list {
+		list[i] = "sheet: " + list[i]
+	}
+	ret = append(ret, list...)
+	list = assets.listTiles()
+	for i := range list {
+		list[i] = " tile: " + list[i]
+	}
+	ret = append(ret, list...)
+	list = assets.listTiles()
+	for i := range list {
+		list[i] = " anim: " + list[i]
+	}
+	ret = append(ret, list...)
+	return ret
+}
