@@ -29,7 +29,8 @@ type (
 
 	// Animation -
 	Animation struct {
-		name string
+		name         string
+		tileBaseName string
 		// speed     float64
 		duration  time.Duration
 		keyframes []tKeyframe
@@ -38,13 +39,15 @@ type (
 )
 
 // CreateAnimation -
-func CreateAnimation(name string) *Animation {
-	if animationExists(name) {
-		setError(fmt.Errorf("animation %q already exists", name))
+func CreateAnimation(tileBaseName string) *Animation {
+	animName := AbsAnimationPath(tileBaseName)
+	tileBaseName = AbsTilePath(tileBaseName)
+	if animationExists(animName) {
+		setError(fmt.Errorf("animation %q already exists", animName))
 		return nil
 	}
-	anim := &Animation{name: name}
-	assets.anims[name] = anim
+	anim := &Animation{name: animName, tileBaseName: tileBaseName}
+	assets.anims[animName] = anim
 	return anim
 }
 
@@ -83,6 +86,7 @@ func (o *Animation) Plain(tileNames ...string) *Animation {
 	o.keyframes = nil
 	o.duration = 0
 	for _, name := range tileNames {
+		name = joinPaths(o.tileBaseName, name)
 		realNames := getRealTileNames(name)
 		if len(realNames) == 0 {
 			setError(fmt.Errorf("tile %q does not exist", name))
@@ -153,7 +157,7 @@ func (o *Animation) Tile(t time.Duration) *Tile {
 
 func getRealTileNames(name string) []string {
 	tiles := assets.listTiles()
-	name = AbsPath(name)
+	name = AbsTilePath(name)
 	ret := []string{}
 	for _, s := range tiles {
 		// fmt.Printf("%v; %v\n", name, s)

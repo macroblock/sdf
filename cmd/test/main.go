@@ -52,12 +52,15 @@ func (o *game) Init() {
 		Tile(12, nil, 0).
 		Tile(15, nil, 0)
 
-	anim0 = sdf.CreateAnimation("test move").Plain("/ff/move/S*").StretchTo(1.0)
-	sdf.CreateAnimation("hero idle").Plain("/ff/idle*").StretchTo(1.0)
-	sdf.CreateAnimation("hero move N").Plain("/ff/move/N*").StretchTo(1.0)
-	sdf.CreateAnimation("hero move S").Plain("/ff/move/S*").StretchTo(1.0)
-	sdf.CreateAnimation("hero move W").Plain("/ff/move/W*").StretchTo(1.0)
-	sdf.CreateAnimation("hero move E").Plain("/ff/move/E*").StretchTo(1.0)
+	sdf.SetAnimationPath("/test move")
+	anim0 = sdf.CreateAnimation("").Plain("/ff/move/S/*").StretchTo(1.0)
+	sdf.SetTilePath("/ff")
+	sdf.SetAnimationPath("/hero")
+	sdf.CreateAnimation("idle").Plain("*").StretchTo(1.0)
+	sdf.CreateAnimation("move/N").Plain("*").StretchTo(1.0)
+	sdf.CreateAnimation("move/S").Plain("*").StretchTo(1.0)
+	sdf.CreateAnimation("move/W").Plain("*").StretchTo(1.0)
+	sdf.CreateAnimation("move/E").Plain("*").StretchTo(1.0)
 
 	// tileSheet = sdf.LoadTileSheet("girl", -4, -5, "../../assets/girl-03.png")
 
@@ -114,13 +117,14 @@ type Hero struct {
 // NewHero -
 func NewHero(x, y int) *Hero {
 	hero := &Hero{x: x, y: y}
+	sdf.SetAnimationPath("/hero")
 	hero.GameObject = sdf.NewGameObject("hero").
-		AddAnimation("idle", "hero idle").
-		AddAnimation("move N", "hero move N").
-		AddAnimation("move S", "hero move S").
-		AddAnimation("move W", "hero move W").
-		AddAnimation("move E", "hero move E")
-	hero.Play("move E")
+		AddAnimation("idle").
+		AddAnimation("move/N").
+		AddAnimation("move/S").
+		AddAnimation("move/W").
+		AddAnimation("move/E")
+	hero.Play("/move/E")
 	return hero
 }
 
@@ -128,11 +132,11 @@ func NewHero(x, y int) *Hero {
 func NewGirl(x, y int) *Hero {
 	hero := &Hero{x: x, y: y}
 	hero.GameObject = sdf.NewGameObject("girl").
-		AddAnimation("idle", "girl idle").
-		AddAnimation("move N", "girl move N").
-		AddAnimation("move S", "girl move S").
-		AddAnimation("move W", "girl move W").
-		AddAnimation("move E", "girl move E")
+		AddAnimation("girl idle").
+		AddAnimation("girl move N").
+		AddAnimation("girl move S").
+		AddAnimation("girl move W").
+		AddAnimation("girl move E")
 	hero.Play("move E")
 	return hero
 }
@@ -141,17 +145,17 @@ func NewGirl(x, y int) *Hero {
 func (o *Hero) HandleEvents() {
 	dx := sdf.PressedInt(sdf.InputRight) - sdf.PressedInt(sdf.InputLeft)
 	dy := sdf.PressedInt(sdf.InputDown) - sdf.PressedInt(sdf.InputUp)
-	state := "idle"
+	state := "/idle"
 	if dx != 0 {
-		state = "move W"
+		state = "/move/W"
 		if dx > 0 {
-			state = "move E"
+			state = "/move/E"
 		}
 
 	} else if dy != 0 {
-		state = "move N"
+		state = "/move/N"
 		if dy > 0 {
-			state = "move S"
+			state = "/move/S"
 		}
 	}
 	rest, ok := o.tween.Process(sdf.FixedTime())
@@ -161,13 +165,13 @@ func (o *Hero) HandleEvents() {
 		hero.Play(state)
 		xptr, yptr := hero.GetOffsetPtr()
 		switch state {
-		case "move N":
+		case "/move/N":
 			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr-1, *yptr-16)
-		case "move S":
+		case "/move/S":
 			o.tween.Reset(yptr, sdf.FixedTime(), len*time.Millisecond, *yptr+1, *yptr+16)
-		case "move W":
+		case "/move/W":
 			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr-1, *xptr-16)
-		case "move E":
+		case "/move/E":
 			o.tween.Reset(xptr, sdf.FixedTime(), len*time.Millisecond, *xptr+1, *xptr+16)
 		}
 	}

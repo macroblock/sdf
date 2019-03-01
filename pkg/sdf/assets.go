@@ -128,7 +128,7 @@ func ListAssets() []string {
 		list[i] = " tile: " + list[i]
 	}
 	ret = append(ret, list...)
-	list = assets.listTiles()
+	list = assets.listAnimations()
 	for i := range list {
 		list[i] = " anim: " + list[i]
 	}

@@ -79,19 +79,34 @@ func joinPaths(a, b string) string {
 	return path.Join(a, b)
 }
 
-// AbsPath -
-func AbsPath(path string) string {
+// AbsTilePath -
+func AbsTilePath(path string) string {
 	return joinPaths(sdf.curTilePath, path)
+}
+
+// TilePath -
+func TilePath() string {
+	return sdf.curTilePath
 }
 
 // SetTilePath -
 func SetTilePath(path string) {
-	sdf.curTilePath = AbsPath(path)
+	sdf.curTilePath = AbsTilePath(path)
 }
 
-// Path -
-func Path() string {
-	return sdf.curTilePath
+// AbsAnimationPath -
+func AbsAnimationPath(path string) string {
+	return joinPaths(sdf.curAnimationPath, path)
+}
+
+// AnimationPath -
+func AnimationPath() string {
+	return sdf.curAnimationPath
+}
+
+// SetAnimationPath -
+func SetAnimationPath(path string) {
+	sdf.curAnimationPath = AbsAnimationPath(path)
 }
 
 // func absName(name string) []string {

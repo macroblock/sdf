@@ -8,8 +8,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const constNameSeparator = "/"
-
 var (
 	sdf          Type
 	on           handler
@@ -21,14 +19,15 @@ var (
 type (
 	// Type -
 	Type struct {
-		err         error
-		isRunning   bool
-		fps         float64
-		deltaRender time.Duration
-		deltaUpdate time.Duration
-		window      *sdl.Window
-		renderer    *sdl.Renderer
-		curTilePath string
+		err              error
+		isRunning        bool
+		fps              float64
+		deltaRender      time.Duration
+		deltaUpdate      time.Duration
+		window           *sdl.Window
+		renderer         *sdl.Renderer
+		curTilePath      string
+		curAnimationPath string
 	}
 
 	handler struct {
@@ -58,7 +57,7 @@ func Run(obj interface{}) error {
 		sdf.err = fmt.Errorf("sdf was not cleaned up correctly")
 		return sdf.err
 	}
-	sdf = Type{curTilePath: "/"}
+	sdf = Type{curTilePath: "/", curAnimationPath: "/"}
 
 	flags := uint32(0)
 

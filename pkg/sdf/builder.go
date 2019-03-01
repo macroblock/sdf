@@ -44,13 +44,6 @@ func (o *TileBuilder) Tile(offs int, extend *geom.Rect2i, flip FlipMode) *TileBu
 	return o
 }
 
-func (o *TileBuilder) genName() string {
-	ret := joinPaths(sdf.curTilePath, o.prefix)
-	ret = fmt.Sprintf("%v%03d", ret, o.counter)
-	o.counter++
-	return ret
-}
-
 // BuildTileTemplate -
 func BuildTileTemplate() *TileTemplateBuilder {
 	return &TileTemplateBuilder{}
@@ -74,4 +67,11 @@ func (o *TileTemplateBuilder) Build(prefix string, baseOffs int, flip FlipMode) 
 		builder.Tile(params.offs+baseOffs, params.extend, params.flip^flip)
 	}
 	return builder
+}
+
+func (o *TileBuilder) genName() string {
+	ret := joinPaths(o.prefix, fmt.Sprintf("%03d", o.counter))
+	ret = AbsTilePath(ret)
+	o.counter++
+	return ret
 }

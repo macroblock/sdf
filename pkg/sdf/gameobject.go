@@ -42,22 +42,21 @@ func NewGameObject(name string) *GameObject {
 }
 
 // AddAnimation -
-func (o *GameObject) AddAnimation(alias string, name string) *GameObject {
+func (o *GameObject) AddAnimation(animName string) *GameObject {
 	if o == nil {
 		return nil
 	}
-	if alias == "" {
-		alias = name
-	}
+	alias := joinPaths("/", animName)
 	if _, ok := o.anims[alias]; ok {
 		setError(fmt.Errorf("state %q already exists", alias))
 		return nil
 	}
-	if !animationExists(name) {
-		setError(fmt.Errorf("animation %q does not exists", name))
+	animName = AbsAnimationPath(animName)
+	if !animationExists(animName) {
+		setError(fmt.Errorf("animation %q does not exists", animName))
 		return nil
 	}
-	anim := assets.anims[name]
+	anim := assets.anims[animName]
 	o.anims[alias] = anim
 	if o.curAnim == nil {
 		o.curAnim = anim
@@ -79,6 +78,9 @@ func (o *GameObject) Copy(x, y int) {
 
 // Play -
 func (o *GameObject) Play(name string) {
+	if o == nil {
+		return
+	}
 	anim, ok := o.anims[name]
 	if !ok {
 		setError(fmt.Errorf("animation %q does not exists", name))
