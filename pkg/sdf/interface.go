@@ -14,7 +14,7 @@ type (
 		Render()
 	}
 	iHandleEvents interface {
-		HandleEvent(ev KeyboardEvent)
+		HandleEvent(ev IEvent)
 	}
 
 	// IElem -
@@ -48,7 +48,7 @@ func callRender(i interface{}) {
 	}
 }
 
-func callHandleEvent(i interface{}, ev KeyboardEvent) {
+func callHandleEvent(i interface{}, ev IEvent) {
 	if i, ok := i.(iHandleEvents); ok {
 		i.HandleEvent(ev)
 	}

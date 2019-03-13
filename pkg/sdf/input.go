@@ -37,12 +37,12 @@ type (
 )
 
 var (
-	eventQueue []KeyboardEvent
+	eventQueue []IEvent
 	scanbuf    []tKeyState
 )
 
 func init() {
-	eventQueue = make([]KeyboardEvent, 0, 32)
+	eventQueue = make([]IEvent, 0, 32)
 }
 
 // Pressed -
@@ -95,13 +95,28 @@ func processInput() {
 		case *sdl.QuitEvent:
 			_ = ev
 			sdf.isRunning = false
+		case *sdl.MouseButtonEvent:
+			e := MouseClickEvent{}
+			e.Button = uint32(ev.Button)
+			e.Pressed = ev.Type == sdl.MOUSEBUTTONDOWN
+			e.X = int(ev.X)
+			e.Y = int(ev.Y)
+			eventQueue = append(eventQueue, &e)
+		case *sdl.MouseMotionEvent:
+			e := MouseMotionEvent{}
+			e.Buttons = uint32(ev.State)
+			e.X = int(ev.X)
+			e.Y = int(ev.Y)
+			e.DX = int(ev.XRel)
+			e.DY = int(ev.YRel)
+			eventQueue = append(eventQueue, &e)
 		case *sdl.KeyboardEvent:
 			pressed := (ev.Type == sdl.KEYDOWN)
 			time := time.Since(programStart)
 			if pressed {
 				// lastKbdEventIndex = len(eventQueue)
-				eventQueue = append(eventQueue, KeyboardEvent{})
-				lastKbdEvent = &eventQueue[len(eventQueue)-1]
+				eventQueue = append(eventQueue, &KeyboardEvent{})
+				lastKbdEvent = eventQueue[len(eventQueue)-1].(*KeyboardEvent)
 				lastKbdEvent.Key = int(ev.Keysym.Scancode)
 				lastKbdEvent.Rune = utf8.RuneError
 				lastKbdEvent.Mod = ev.Keysym.Mod
@@ -114,8 +129,8 @@ func processInput() {
 			if lastKbdEvent == nil {
 				fmt.Printf("kbd input event warning %q\n", r)
 				// lastKbdEventIndex = len(eventQueue)
-				eventQueue = append(eventQueue, KeyboardEvent{})
-				lastKbdEvent = &eventQueue[len(eventQueue)-1]
+				eventQueue = append(eventQueue, &KeyboardEvent{})
+				lastKbdEvent = eventQueue[len(eventQueue)-1].(*KeyboardEvent)
 				// eventQueue[lastKbdEventIndex].Mod = 1
 			}
 			if r != utf8.RuneError {
