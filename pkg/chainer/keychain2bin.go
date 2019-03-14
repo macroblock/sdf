@@ -53,7 +53,7 @@ func keychainToBinary(keychain string) ([]BinaryKey, error) {
 				err = traverse(node)
 			case "rune":
 				r, _ := utf8.DecodeRuneInString(node.Value)
-				data = append(data, BinaryKey(r))
+				data = append(data, MakeBinaryKey(int(r), 0, 0, 0))
 			case "range":
 				r1, _ := utf8.DecodeRuneInString(node.Links[0].Value)
 				r2, _ := utf8.DecodeRuneInString(node.Links[1].Value)
@@ -61,7 +61,7 @@ func keychainToBinary(keychain string) ([]BinaryKey, error) {
 					r1, r2 = r2, r1
 				}
 				for i := r1; i < r2; i++ {
-					data = append(data, BinaryKey(i)) // error
+					data = append(data, MakeBinaryKey(int(i), 0, 0, 0)) // error
 				}
 			case "mod", "key":
 			}
