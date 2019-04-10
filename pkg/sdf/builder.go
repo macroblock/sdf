@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/macroblock/sdf/pkg/geom"
+	"github.com/macroblock/sdf/pkg/gfx"
 )
 
 type (
@@ -21,7 +22,7 @@ type (
 	tileTemplateType struct {
 		offs   int
 		extend *geom.Rect2i
-		flip   FlipMode
+		flip   gfx.FlipMode
 	}
 )
 
@@ -34,7 +35,7 @@ func BuildTileSet(prefix string, counter uint) *TileBuilder {
 }
 
 // Tile -
-func (o *TileBuilder) Tile(offs int, extend *geom.Rect2i, flip FlipMode) *TileBuilder {
+func (o *TileBuilder) Tile(offs int, extend *geom.Rect2i, flip gfx.FlipMode) *TileBuilder {
 	if offs < 0 {
 		setError(fmt.Errorf("negative tile offset"))
 		return o
@@ -50,7 +51,7 @@ func BuildTileTemplate() *TileTemplateBuilder {
 }
 
 // Tile -
-func (o *TileTemplateBuilder) Tile(offs int, extend *geom.Rect2i, flip FlipMode) *TileTemplateBuilder {
+func (o *TileTemplateBuilder) Tile(offs int, extend *geom.Rect2i, flip gfx.FlipMode) *TileTemplateBuilder {
 	if extend != nil {
 		ext := *extend
 		extend = &ext
@@ -60,7 +61,7 @@ func (o *TileTemplateBuilder) Tile(offs int, extend *geom.Rect2i, flip FlipMode)
 }
 
 // Build -
-func (o *TileTemplateBuilder) Build(prefix string, baseOffs int, flip FlipMode) *TileBuilder {
+func (o *TileTemplateBuilder) Build(prefix string, baseOffs int, flip gfx.FlipMode) *TileBuilder {
 	builder := BuildTileSet(prefix, 0)
 	for i := range o.params {
 		params := &o.params[i]

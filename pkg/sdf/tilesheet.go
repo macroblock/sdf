@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/macroblock/sdf/pkg/geom"
+	"github.com/macroblock/sdf/pkg/gfx"
 )
 
 type (
 	// TileSheet -
 	TileSheet struct {
 		name      string
-		tex       *Texture
+		tex       *gfx.Texture
 		tileSize  geom.Point2i
 		tilesPerW int
 		// tiles     map[string]*Tile
@@ -54,7 +55,7 @@ func LoadTileSheet(name string, tileW, tileH int, path string) *TileSheet {
 // When one of the ordinate < 0 then its modulus means an offset in current tile sheet.
 // In this case other ordinate must be zero, otherwise error will be raised.
 // In all cases count of elements started from 1 (not from zero).
-func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip FlipMode) *Tile {
+func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip gfx.FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -85,7 +86,7 @@ func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip Fl
 
 	origin := geom.InitPoint2i(x, y)
 	bounds := extend.Add(origin)
-	bearing := origin.SubInt(bounds.X, bounds.Y)
+	bearing := origin.Sub(bounds.A)
 	tile := &Tile{
 		tex:    o.tex,
 		bounds: bounds.Mul(o.tileSize),

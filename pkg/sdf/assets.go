@@ -3,12 +3,14 @@ package sdf
 import (
 	"fmt"
 	"path/filepath"
+
+	"github.com/macroblock/sdf/pkg/gfx"
 )
 
 type (
 	// Assets -
 	Assets struct {
-		byURI  map[string]*Texture
+		byURI  map[string]*gfx.Texture
 		sheets map[string]*TileSheet
 		tiles  map[string]*Tile
 		anims  map[string]*Animation
@@ -25,7 +27,7 @@ type (
 
 func newAssets() Assets {
 	return Assets{
-		byURI:  map[string]*Texture{},
+		byURI:  map[string]*gfx.Texture{},
 		sheets: map[string]*TileSheet{},
 		tiles:  map[string]*Tile{},
 		anims:  map[string]*Animation{},
@@ -33,7 +35,7 @@ func newAssets() Assets {
 }
 
 // LoadResource -
-func (o *Assets) loadResource(path string) (*Texture, error) {
+func (o *Assets) loadResource(path string) (*gfx.Texture, error) {
 	uri, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -45,7 +47,7 @@ func (o *Assets) loadResource(path string) (*Texture, error) {
 		return res, nil
 	}
 
-	res, err = loadTexture(uri)
+	res, err = sdf.renderer.LoadTexture(uri)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +58,7 @@ func (o *Assets) loadResource(path string) (*Texture, error) {
 }
 
 // UnloadResource -
-func (o *Assets) unloadResource(res *Texture) error {
+func (o *Assets) unloadResource(res *gfx.Texture) error {
 	if res == nil {
 		return fmt.Errorf("resource is nil")
 	}
@@ -76,7 +78,7 @@ func (o *Assets) unloadResource(res *Texture) error {
 	if !ok {
 		return fmt.Errorf("resource %q was not found", uri)
 	}
-	unloadTexture(res)
+	sdf.renderer.UnloadTexture(res)
 	return nil
 }
 

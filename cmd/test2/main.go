@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"image/color"
 
+	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/sdf"
 	"github.com/macroblock/sdf/pkg/types"
-	"github.com/veandco/go-sdl2/sdl"
+	"github.com/macroblock/sdf/pkg/ui"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 type game struct {
 	gridX, gridY int
 	grid         *types.Grid
+	ui           *ui.UI
 }
 
 // Init -
@@ -25,6 +27,14 @@ func (o *game) Init() {
 	o.gridY = 50
 	o.grid = types.NewGrid(gridSize, gridSize, 0)
 	o.grid.Set(1, 1, -1)
+
+	o.ui = ui.NewUI(sdf.Renderer())
+	o.ui.SetBounds(geom.InitRect2i(100, 100, 500, 250))
+	o.ui.AddChildren(
+		ui.NewPanel().SetBounds(geom.InitRect2i(50, 50, 100, 100)),
+		ui.NewPanel().SetBounds(geom.InitRect2i(200, 50, 100, 25)),
+	)
+	fmt.Println("ui:\n", o.ui)
 }
 
 // CleanUp -
@@ -64,22 +74,25 @@ func (o *game) HandleEvent(ev sdf.IEvent) {
 // Render
 func (o *game) Render() {
 	o.drawGrid()
+	// o.ui.SetBounds(geom.InitRect2i(100, 100, 50, 79))
+	o.ui.Draw()
 }
 
 func (o *game) drawGrid() {
 	c1 := color.RGBA{255, 255, 0, 127}
 	c2 := color.RGBA{0, 255, 255, 127}
 	r := sdf.Renderer()
-	r.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 	// w, h := sdf.Size()
 	pos := 0
 	for pos < gridSize {
 		x := o.gridX + pos*cellSize
 		y := o.gridY
 		h := gridSize * cellSize
-		drawLine(r, x, y, x, y+h-1, c1)
+		r.SetColor(c1)
+		r.DrawLine(x, y, x, y+h-1)
 		x += cellSize
-		drawLine(r, x-1, y, x-1, y+h-1, c2)
+		r.SetColor(c2)
+		r.DrawLine(x-1, y, x-1, y+h-1)
 		pos++
 	}
 	pos = 0
@@ -87,9 +100,11 @@ func (o *game) drawGrid() {
 		x := o.gridX
 		y := o.gridY + pos*cellSize
 		w := gridSize * cellSize
-		drawLine(r, x, y, x+w-1, y, c1)
+		r.SetColor(c1)
+		r.DrawLine(x, y, x+w-1, y)
 		y += cellSize
-		drawLine(r, x, y-1, x+w-1, y-1, c2)
+		r.SetColor(c2)
+		r.DrawLine(x, y-1, x+w-1, y-1)
 		pos++
 	}
 	w, h := o.grid.Size()
@@ -99,23 +114,10 @@ func (o *game) drawGrid() {
 			if o.grid.Get(i, j).(int) != 0 {
 				c = color.RGBA{125, 0, 0, 255}
 			}
-			fillRect(r, o.gridX+i*cellSize+1, o.gridY+j*cellSize+1, cellSize-2, cellSize-2, c)
+			r.SetColor(c)
+			r.FillRect(o.gridX+i*cellSize+1, o.gridY+j*cellSize+1, cellSize-2, cellSize-2)
 		}
 	}
-	drawLine(r, -1, -1, -1, -1, color.RGBA{0, 0, 0, 255})
-}
-
-func fillRect(rend *sdl.Renderer, x, y, w, h int, c color.Color) {
-	r, g, b, a := c.RGBA()
-	rend.SetDrawColor(uint8(r), uint8(g), uint8(b), uint8(a))
-	rect := sdl.Rect{X: int32(x), Y: int32(y), W: int32(w), H: int32(h)}
-	rend.FillRect(&rect)
-}
-
-func drawLine(rend *sdl.Renderer, x1, y1, x2, y2 int, c color.Color) {
-	r, g, b, a := c.RGBA()
-	rend.SetDrawColor(uint8(r), uint8(g), uint8(b), uint8(a))
-	rend.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
 }
 
 func main() {

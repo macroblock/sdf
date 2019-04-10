@@ -5,6 +5,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/macroblock/sdf/pkg/fonts/pixfm5x9normal"
+
+	"github.com/macroblock/sdf/pkg/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -25,7 +28,7 @@ type (
 		deltaRender      time.Duration
 		deltaUpdate      time.Duration
 		window           *sdl.Window
-		renderer         *sdl.Renderer
+		renderer         *gfx.Renderer
 		curTilePath      string
 		curAnimationPath string
 	}
@@ -42,6 +45,7 @@ func init() {
 	on.y = sdl.WINDOWPOS_UNDEFINED
 	on.w = 640
 	on.h = 480
+
 }
 
 // Run -
@@ -68,20 +72,21 @@ func Run(obj interface{}) error {
 	setError(err)
 
 	sdf.window, err = sdl.CreateWindow("test", on.x, on.y, on.w, on.h, flags)
-	if err == nil {
-		flags = sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC
-		sdf.renderer, err = sdl.CreateRenderer(sdf.window, -1, flags)
+	if err != nil {
+		setError(err)
+		return err
 	}
+
+	flags = sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC
+	renderer, err := sdl.CreateRenderer(sdf.window, -1, flags)
 	setError(err)
 
-	// sdf.window = window
-	// sdf.renderer = renderer
+	sdf.renderer = gfx.NewRenderer(renderer)
+	defaultFont := CreatePixelFont(pixfm5x9normal.Font)
+	sdf.renderer.SetDefaultFont(defaultFont)
 
 	on.obj = obj
 
-	// if i, ok := obj.(iInit); ok {
-	// 	i.Init()
-	// }
 	callInit(obj)
 
 	sdf.isRunning = true
@@ -193,4 +198,31 @@ func DeltaRender() time.Duration {
 // FPS -
 func FPS() float64 {
 	return sdf.fps
+}
+
+// SetScale -
+func SetScale(x, y float64) {
+	if !Ok() {
+		return
+	}
+	sdf.renderer.SetScale(x, y)
+}
+
+// Renderer -
+func Renderer() *gfx.Renderer {
+	return sdf.renderer
+}
+
+// Size -
+func Size() (int, int) {
+	if !Ok() {
+		return -1, -1
+	}
+	// w, h, err := sdf.renderer.GetOutputSize()
+	// if err != nil {
+	// 	setError(err)
+	// 	return -1, -1
+	// }
+	w, h := sdf.renderer.Size()
+	return w, h
 }

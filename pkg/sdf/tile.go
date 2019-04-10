@@ -5,31 +5,21 @@ import (
 	"time"
 
 	"github.com/macroblock/sdf/pkg/geom"
-	"github.com/veandco/go-sdl2/sdl"
-)
-
-// FlipMode -
-type FlipMode int
-
-// can be ORed
-const (
-	FlipNone FlipMode = iota
-	FlipHorizontal
-	FlipVertical
+	"github.com/macroblock/sdf/pkg/gfx"
 )
 
 type (
 	// Tile -
 	Tile struct {
-		tex    *Texture
+		tex    *gfx.Texture
 		bounds geom.Rect2i
 		pivot  geom.Point2i
-		flip   FlipMode
+		flip   gfx.FlipMode
 	}
 )
 
 // CreateTile - see TileSheet.InitTile function
-func CreateTile(name string, x, y int, extend *geom.Rect2i, flip FlipMode) *Tile {
+func CreateTile(name string, x, y int, extend *geom.Rect2i, flip gfx.FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -60,14 +50,11 @@ func (o *Tile) Copy(x, y int) {
 	if !Ok() || o == nil {
 		return
 	}
-	bounds := o.bounds.Normalize()
-	src := sdl.Rect{X: int32(bounds.X), Y: int32(bounds.Y), W: int32(bounds.W), H: int32(bounds.H)}
+	src := o.bounds.Normalize()
 	x -= o.pivot.X
 	y -= o.pivot.Y
-	dst := sdl.Rect{X: int32(x), Y: int32(y), W: src.W, H: src.H}
-	// fmt.Printf("src: %v\ndst: %v\n", src, dst)
-	// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
-	err := sdf.renderer.CopyEx(o.tex.sdltex, &src, &dst, 0, nil, sdl.RendererFlip(o.flip))
-	// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
+	dst := geom.InitRect2i(x, y, src.B.X, src.B.Y)
+	sdf.renderer.CopyRegionEx(o.tex, src, dst, o.flip)
+	err := error(nil)
 	setError(err)
 }

@@ -1,56 +1,108 @@
 package geom
 
+import "github.com/macroblock/sdf/pkg/misc"
+
 // Rect2i -
 type Rect2i struct {
-	X, Y, W, H int
+	A Point2i
+	B Point2i
 }
 
 // InitRect2i -
 func InitRect2i(x, y, w, h int) Rect2i {
-	return Rect2i{x, y, w, h}
+	return Rect2i{Point2i{x, y}, Point2i{x + w, y + h}}
+}
+
+// InitRect2iAbs -
+func InitRect2iAbs(x1, y1, x2, y2 int) Rect2i {
+	return Rect2i{Point2i{x1, y1}, Point2i{x2, y2}}
+}
+
+// Size -
+func (o Rect2i) Size() Point2i {
+	return InitPoint2i(o.B.X-o.A.X, o.B.Y-o.A.Y)
+}
+
+// W -
+func (o Rect2i) W() int {
+	return o.B.X - o.A.X
+}
+
+// H -
+func (o Rect2i) H() int {
+	return o.B.Y - o.A.Y
 }
 
 // Normalize -
 func (o Rect2i) Normalize() Rect2i {
-	if o.W < 0 {
-		o.W = -o.W
-		o.X -= o.W
+	if o.B.X < o.A.X {
+		o.A.X, o.B.X = o.B.X, o.A.X
 	}
-	if o.H < 0 {
-		o.H = -o.H
-		o.Y -= o.H
+	if o.B.Y < o.B.Y {
+		o.A.Y, o.B.Y = o.B.Y, o.A.Y
 	}
 	return o
 }
 
 // Add -
 func (o Rect2i) Add(pt Point2i) Rect2i {
-	o.X += pt.X
-	o.Y += pt.Y
+	o.A.X += pt.X
+	o.A.Y += pt.Y
+	o.B.X += pt.X
+	o.B.Y += pt.Y
+	return o
+}
+
+// Sub -
+func (o Rect2i) Sub(pt Point2i) Rect2i {
+	o.A.X -= pt.X
+	o.A.Y -= pt.Y
+	o.B.X -= pt.X
+	o.B.Y -= pt.Y
 	return o
 }
 
 // Mul -
 func (o Rect2i) Mul(kxy Point2i) Rect2i {
-	o.X *= kxy.X
-	o.Y *= kxy.Y
-	o.W *= kxy.X
-	o.H *= kxy.Y
+	o.A.X *= kxy.X
+	o.A.Y *= kxy.Y
+	o.B.X *= kxy.X
+	o.B.Y *= kxy.Y
 	return o
 }
 
 // AddInt -
 func (o Rect2i) AddInt(x, y int) Rect2i {
-	o.X += x
-	o.Y += y
+	o.A.X += x
+	o.A.Y += y
+	o.B.X += x
+	o.B.Y += y
+	return o
+}
+
+// SubInt -
+func (o Rect2i) SubInt(x, y int) Rect2i {
+	o.A.X -= x
+	o.A.Y -= y
+	o.B.X -= x
+	o.B.Y -= y
 	return o
 }
 
 // MulInt -
 func (o Rect2i) MulInt(kx, ky int) Rect2i {
-	o.X *= kx
-	o.Y *= ky
-	o.W *= kx
-	o.H *= ky
+	o.A.X *= kx
+	o.A.Y *= ky
+	o.B.X *= kx
+	o.B.Y *= ky
+	return o
+}
+
+// Intersect -
+func (o Rect2i) Intersect(r Rect2i) Rect2i {
+	o.A.X = misc.MaxInt(o.A.X, r.A.X)
+	o.A.Y = misc.MaxInt(o.A.Y, r.A.Y)
+	o.B.X = misc.MinInt(o.B.X, r.B.X)
+	o.B.Y = misc.MinInt(o.B.Y, r.B.Y)
 	return o
 }
