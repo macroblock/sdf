@@ -84,9 +84,10 @@ func (o *KernelNode) Draw() {
 	// r.Print(10, 11, "Test")
 	// r.Print(9, 10, "Test")
 	// r.Print(11, 10, "Test")
-	r.Print(11, 11, "Test")
+	// r.Print(11, 11, "Test")
+	r.DrawText(11, 11, "Test")
 	r.SetTextColor(color.RGBA{255, 255, 255, 255})
-	r.Print(10, 10, "Test")
+	r.DrawText(10, 10, "Test")
 }
 
 // Rect -

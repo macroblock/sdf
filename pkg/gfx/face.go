@@ -46,9 +46,14 @@ type IFontFace interface {
 
 // DrawText -
 func (o *Renderer) DrawText(x, y int, text string) {
-	x0, y0 := x, y
+	font := o.font
+	if font == nil {
+		font = defaultFont
+	}
+	x0 := x
 	for _, r := range text {
-		bounds, tex, bearing, advance, ok := o.font.Glyph(fixed.Point26_6{}, r)
+		bounds, tex, bearing, advance, ok := font.Glyph(fixed.Point26_6{}, r)
+		_ = ok
 		switch r {
 		case '\n':
 			x = x0
@@ -63,6 +68,8 @@ func (o *Renderer) DrawText(x, y int, text string) {
 		// src = sdl.Rect{X: 0, Y: 9, W: 5, H: 9}
 		// dst = sdl.Rect{X: x, Y: y, W: 5, H: 9}
 		// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
+
+		tex.SetColorMod(o.textColor)
 		o.CopyRegion(tex, bounds, dst)
 
 		x += advance

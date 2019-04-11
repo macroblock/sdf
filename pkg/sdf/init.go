@@ -83,7 +83,7 @@ func Run(obj interface{}) error {
 
 	sdf.renderer = gfx.NewRenderer(renderer)
 	defaultFont := CreatePixelFont(pixfm5x9normal.Font)
-	sdf.renderer.SetDefaultFont(defaultFont)
+	sdf.renderer.SetDefaultFont(defaultFont.NewFace(2))
 
 	on.obj = obj
 
