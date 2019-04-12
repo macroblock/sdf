@@ -40,23 +40,77 @@ func (o *KernelNode) AddChildren(children ...IKernelNode) {
 	}
 }
 
+// ClipRect -
+func ClipRect(rect, clip geom.Rect2i) (geom.Point2i, geom.Rect2i) {
+	switch {
+	case clip.A.X < rect.A.X:
+		clip.A.X = rect.A.X
+	case clip.A.X > rect.B.X:
+		clip.A.X = rect.B.X
+	}
+	switch {
+	case clip.A.Y < rect.A.Y:
+		clip.A.Y = rect.A.Y
+	case clip.A.Y > rect.B.Y:
+		clip.A.Y = rect.B.Y
+	}
+	switch {
+	case clip.B.X > rect.B.X:
+		clip.B.X = rect.B.X
+	case clip.B.X < rect.A.X:
+		clip.B.X = rect.A.X
+	}
+	switch {
+	case clip.B.Y > rect.B.Y:
+		clip.B.Y = rect.B.Y
+	case clip.B.Y < rect.A.Y:
+		clip.B.Y = rect.A.Y
+	}
+	offset := geom.InitPoint2i(clip.A.X-rect.A.X, clip.A.Y-rect.A.Y)
+	return offset, clip
+}
+
 // DrawScheme -
-func (o *KernelNode) DrawScheme(offset geom.Point2i, clip geom.Rect2i) {
+func (o *KernelNode) DrawScheme(zp geom.Point2i, clip geom.Rect2i) {
 	self := o.self
 	r := o.Renderer()
-	rect := self.Rect().Add(offset)
-	r.SetViewport(rect)
+
+	rect := self.Rect()
+
+	offset, clip := ClipRect(rect, clip)
+	r.SetViewport(clip.Add(zp))
+	r.SetOffset(offset)
+
 	self.DrawNC()
 
 	rect = self.ClientRect().Add(rect.A)
-	r.SetViewport(rect)
+	offset, clip = ClipRect(rect, clip)
+	r.SetViewport(clip.Add(zp))
+	r.SetOffset(offset)
+
 	self.Draw()
 
-	offset = rect.A
+	zp = zp.Sub(offset)
+	clip = clip.Add(offset)
 	for _, child := range o.Children {
 		child := child.UIKernelNode().self
-		child.DrawScheme(offset, clip)
+		child.DrawScheme(zp, clip)
 	}
+	// self := o.self
+	// r := o.Renderer()
+	// rect := self.Rect().Add(zp)
+	// r.SetViewport(rect)
+	// self.DrawNC()
+
+	// rect = self.ClientRect().Add(rect.A)
+	// r.SetViewport(rect)
+	// self.Draw()
+
+	// zp = rect.A
+	// for _, child := range o.Children {
+	// 	child := child.UIKernelNode().self
+	// 	child.DrawScheme(zp, clip)
+	// }
 }
 
 // DrawNC -

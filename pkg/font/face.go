@@ -1,7 +1,6 @@
-package sdf
+package font
 
 import (
-	"github.com/macroblock/sdf/pkg/fonts"
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 	"golang.org/x/image/math/fixed"
@@ -11,7 +10,7 @@ type (
 	// PixelFontFace -
 	PixelFontFace struct {
 		tex *gfx.Texture
-		fonts.PixelFontSettings
+		PixelFontSettings
 	}
 )
 

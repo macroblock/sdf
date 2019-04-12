@@ -75,7 +75,8 @@ func (o *game) HandleEvent(ev sdf.IEvent) {
 func (o *game) Render() {
 	o.drawGrid()
 	// o.ui.SetBounds(geom.InitRect2i(100, 100, 50, 79))
-	o.ui.Draw()
+	w, h := sdf.Renderer().Size()
+	o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
 }
 
 func (o *game) drawGrid() {

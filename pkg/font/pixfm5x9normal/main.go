@@ -1,9 +1,9 @@
 package pixfm5x9normal
 
-import "github.com/macroblock/sdf/pkg/fonts"
+import "github.com/macroblock/sdf/pkg/font"
 
 // Font -
-var Font = fonts.PixelFontSettings{
+var Font = font.PixelFontSettings{
 	FileName:        "../../assets/fonts/font-5x9-(16x7).png",
 	MinRune:         ' ',
 	MaxRune:         '~',

@@ -49,6 +49,11 @@ func (o *Renderer) SetViewport(rect geom.Rect2i) {
 	_ = err
 }
 
+// SetOffset -
+func (o *Renderer) SetOffset(offset geom.Point2i) {
+	o.offset = offset
+}
+
 // SetDefaultFont -
 func (o *Renderer) SetDefaultFont(font IFontFace) {
 	defaultFont = font
@@ -121,30 +126,30 @@ func (o *Renderer) Clear() {
 
 // DrawLine -
 func (o *Renderer) DrawLine(x1, y1, x2, y2 int) {
-	o.r.DrawLine(int32(o.offset.X+x1), int32(o.offset.Y+y1), int32(x2), int32(y2))
+	o.r.DrawLine(int32(x1-o.offset.X), int32(y1-o.offset.Y), int32(x2), int32(y2))
 }
 
 // DrawRect -
 func (o *Renderer) DrawRect(x, y, w, h int) {
-	rect := sdlRect(o.offset.X+x, o.offset.Y+y, w, h)
+	rect := sdlRect(x-o.offset.X, y-o.offset.Y, w, h)
 	o.r.DrawRect(&rect)
 }
 
 // FillRect -
 func (o *Renderer) FillRect(x, y, w, h int) {
-	rect := sdlRect(o.offset.X+x, o.offset.Y+y, w, h)
+	rect := sdlRect(x-o.offset.X, y-o.offset.Y, w, h)
 	o.r.FillRect(&rect)
 }
 
 // DrawRect2i -
 func (o *Renderer) DrawRect2i(rect geom.Rect2i) {
-	r2 := geom.Rect2iToSdl(rect.Add(o.offset))
+	r2 := geom.Rect2iToSdl(rect.Sub(o.offset))
 	o.r.DrawRect(&r2)
 }
 
 // FillRect2i -
 func (o *Renderer) FillRect2i(rect geom.Rect2i) {
-	r2 := geom.Rect2iToSdl(rect.Add(o.offset))
+	r2 := geom.Rect2iToSdl(rect.Sub(o.offset))
 	o.r.FillRect(&r2)
 }
 
