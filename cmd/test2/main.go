@@ -8,6 +8,7 @@ import (
 	"github.com/macroblock/sdf/pkg/sdf"
 	"github.com/macroblock/sdf/pkg/types"
 	"github.com/macroblock/sdf/pkg/ui"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
@@ -21,6 +22,11 @@ type game struct {
 	ui           *ui.UI
 }
 
+var (
+	xxx, yyy int
+	panel    *ui.Panel
+)
+
 // Init -
 func (o *game) Init() {
 	o.gridX = 50
@@ -28,10 +34,12 @@ func (o *game) Init() {
 	o.grid = types.NewGrid(gridSize, gridSize, 0)
 	o.grid.Set(1, 1, -1)
 
+	xxx, yyy = 50, 50
+	panel = ui.NewPanel().SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
 	o.ui = ui.NewUI(sdf.Renderer())
 	o.ui.SetBounds(geom.InitRect2i(100, 100, 500, 250))
 	o.ui.AddChildren(
-		ui.NewPanel().SetBounds(geom.InitRect2i(50, 50, 100, 100)),
+		panel,
 		ui.NewPanel().SetBounds(geom.InitRect2i(200, 50, 100, 25)),
 	)
 	fmt.Println("ui:\n", o.ui)
@@ -65,18 +73,34 @@ func (o *game) HandleEvent(ev sdf.IEvent) {
 		if ev.Buttons&1 != 0 {
 			val = 1
 		}
+	case *sdf.KeyboardEvent:
+		if ev.Key == sdl.SCANCODE_LEFT {
+			xxx--
+			once = true
+			panel.SetPos(geom.InitPoint2i(xxx, yyy))
+		}
+		if ev.Key == sdl.SCANCODE_RIGHT {
+			xxx++
+			once = true
+			panel.SetPos(geom.InitPoint2i(xxx, yyy))
+		}
 	}
 	x = (x - o.gridX) / cellSize
 	y = (y - o.gridY) / cellSize
 	o.grid.Set(x, y, val)
 }
 
+var once = true
+
 // Render
 func (o *game) Render() {
 	o.drawGrid()
 	// o.ui.SetBounds(geom.InitRect2i(100, 100, 50, 79))
 	w, h := sdf.Renderer().Size()
-	o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
+	if once {
+		o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
+		once = false
+	}
 }
 
 func (o *game) drawGrid() {

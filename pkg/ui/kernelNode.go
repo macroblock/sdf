@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/macroblock/sdf/pkg/geom"
@@ -75,27 +76,35 @@ func (o *KernelNode) DrawScheme(zp geom.Point2i, clip geom.Rect2i) {
 	self := o.self
 	r := o.Renderer()
 
-	rect := self.Rect()
+	rect := self.RectNC()
+	fmt.Println("----------------")
+	fmt.Println("zp  : ", zp)
+	fmt.Println("clip: ", clip)
+	fmt.Println("rect: ", rect)
 
-	offset, clip := ClipRect(rect, clip)
-	r.SetViewport(clip.Add(zp))
+	offset, clip := ClipRect(rect.Add(zp), clip)
+	r.SetViewport(clip)
 	r.SetOffset(offset)
 
 	self.DrawNC()
+	size := self.SizeNC()
+	r.SetColor(color.RGBA{255, 255, 255, 255})
+	r.DrawRect(0, 0, size.X, size.Y)
 
-	rect = self.ClientRect().Add(rect.A)
-	offset, clip = ClipRect(rect, clip)
-	r.SetViewport(clip.Add(zp))
+	rect = self.Rect()
+	offset, clip = ClipRect(rect.Add(zp), clip)
+	r.SetViewport(clip)
 	r.SetOffset(offset)
 
 	self.Draw()
 
-	zp = zp.Sub(offset)
-	clip = clip.Add(offset)
+	zp = zp.Add(rect.A)
+	// clip = clip.Add(offset)
 	for _, child := range o.Children {
 		child := child.UIKernelNode().self
 		child.DrawScheme(zp, clip)
 	}
+
 	// self := o.self
 	// r := o.Renderer()
 	// rect := self.Rect().Add(zp)
@@ -144,18 +153,35 @@ func (o *KernelNode) Draw() {
 	r.DrawText(10, 10, "Test")
 }
 
-// Rect -
-func (o *KernelNode) Rect() geom.Rect2i {
+// RectNC -
+func (o *KernelNode) RectNC() geom.Rect2i {
 	return o.Bounds
 }
 
-// ClientRect -
-func (o *KernelNode) ClientRect() geom.Rect2i {
-	return o.Bounds.Sub(o.Bounds.A)
+// Rect -
+func (o *KernelNode) Rect() geom.Rect2i {
+	return o.Bounds //.Sub(o.Bounds.A)
 	// return geom.Rect2i{B2: o.Bounds.B2}
 	// return geom.InitRect2i(0, 0, o.Bounds.W, o.Bounds.H)
 	// return shrinkRect(o.Bounds, o.border)
 }
+
+// SizeNC -
+func (o *KernelNode) SizeNC() geom.Point2i {
+	rect := o.self.RectNC()
+	return geom.InitPoint2i(rect.W(), rect.H())
+}
+
+// Size -
+func (o *KernelNode) Size() geom.Point2i {
+	rect := o.self.Rect()
+	return geom.InitPoint2i(rect.W(), rect.H())
+}
+
+// // Bounds -
+// func (o *KernelNode) Bounds() geom.Rect2i {
+// 	return geom.InitRect2iAbs(1,1,, B: o.Bounds.B}
+// }
 
 // Renderer -
 func (o *KernelNode) Renderer() *gfx.Renderer {

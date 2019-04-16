@@ -7,8 +7,13 @@ type (
 	IKernelNode interface {
 		UIKernelNode() *KernelNode
 
+		RectNC() geom.Rect2i
 		Rect() geom.Rect2i
-		ClientRect() geom.Rect2i
+
+		SizeNC() geom.Point2i
+		Size() geom.Point2i
+		// BoundsNC() geom.Rect2i
+		// Bounds() geom.Rect2i
 
 		Draw()
 		DrawNC()

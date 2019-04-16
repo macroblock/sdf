@@ -47,6 +47,7 @@ func (o *Renderer) SetViewport(rect geom.Rect2i) {
 		fmt.Println(err)
 	}
 	_ = err
+	fmt.Println("viewport: ", rect)
 }
 
 // SetOffset -

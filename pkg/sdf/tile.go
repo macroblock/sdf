@@ -50,7 +50,7 @@ func (o *Tile) Copy(x, y int) {
 	if !Ok() || o == nil {
 		return
 	}
-	src := o.bounds.Normalize()
+	src := o.bounds.Canon()
 	x -= o.pivot.X
 	y -= o.pivot.Y
 	dst := geom.InitRect2i(x, y, src.B.X, src.B.Y)

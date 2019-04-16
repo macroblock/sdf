@@ -33,8 +33,8 @@ func (o Rect2i) H() int {
 	return o.B.Y - o.A.Y
 }
 
-// Normalize -
-func (o Rect2i) Normalize() Rect2i {
+// Canon -
+func (o Rect2i) Canon() Rect2i {
 	if o.B.X < o.A.X {
 		o.A.X, o.B.X = o.B.X, o.A.X
 	}
@@ -42,6 +42,13 @@ func (o Rect2i) Normalize() Rect2i {
 		o.A.Y, o.B.Y = o.B.Y, o.A.Y
 	}
 	return o
+}
+
+// SetPos -
+func (o Rect2i) SetPos(pos Point2i) Rect2i {
+	dX := pos.X - o.A.X
+	dY := pos.Y - o.A.Y
+	return o.AddInt(dX, dY)
 }
 
 // Add -

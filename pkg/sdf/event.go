@@ -22,6 +22,7 @@ type (
 	// KeyboardEvent -
 	KeyboardEvent struct {
 		Event
+		// scancode
 		Key  int
 		Rune rune
 		Mod  uint16
