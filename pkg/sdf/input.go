@@ -5,6 +5,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/macroblock/sdf/pkg/event"
+
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -37,12 +39,12 @@ type (
 )
 
 var (
-	eventQueue []IEvent
+	eventQueue []event.IEvent
 	scanbuf    []tKeyState
 )
 
 func init() {
-	eventQueue = make([]IEvent, 0, 32)
+	eventQueue = make([]event.IEvent, 0, 32)
 }
 
 // Pressed -
@@ -89,21 +91,20 @@ func JustPressedInt(scan int) int {
 
 func processInput() {
 	// lastKbdEventIndex := -1
-	lastKbdEvent := (*KeyboardEvent)(nil)
-	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		switch ev := event.(type) {
+	lastKbdEvent := (*event.Keyboard)(nil)
+	for ev := sdl.PollEvent(); ev != nil; ev = sdl.PollEvent() {
+		switch ev := ev.(type) {
 		case *sdl.QuitEvent:
-			_ = ev
 			sdf.isRunning = false
 		case *sdl.MouseButtonEvent:
-			e := MouseClickEvent{}
+			e := event.MouseClick{}
 			e.Button = uint32(ev.Button)
 			e.Pressed = ev.Type == sdl.MOUSEBUTTONDOWN
 			e.X = int(ev.X)
 			e.Y = int(ev.Y)
 			eventQueue = append(eventQueue, &e)
 		case *sdl.MouseMotionEvent:
-			e := MouseMotionEvent{}
+			e := event.MouseMotion{}
 			e.Buttons = uint32(ev.State)
 			e.X = int(ev.X)
 			e.Y = int(ev.Y)
@@ -115,8 +116,8 @@ func processInput() {
 			time := time.Since(programStart)
 			if pressed {
 				// lastKbdEventIndex = len(eventQueue)
-				eventQueue = append(eventQueue, &KeyboardEvent{})
-				lastKbdEvent = eventQueue[len(eventQueue)-1].(*KeyboardEvent)
+				eventQueue = append(eventQueue, &event.Keyboard{})
+				lastKbdEvent = eventQueue[len(eventQueue)-1].(*event.Keyboard)
 				lastKbdEvent.Key = int(ev.Keysym.Scancode)
 				lastKbdEvent.Rune = utf8.RuneError
 				lastKbdEvent.Mod = ev.Keysym.Mod
@@ -129,8 +130,8 @@ func processInput() {
 			if lastKbdEvent == nil {
 				fmt.Printf("kbd input event warning %q\n", r)
 				// lastKbdEventIndex = len(eventQueue)
-				eventQueue = append(eventQueue, &KeyboardEvent{})
-				lastKbdEvent = eventQueue[len(eventQueue)-1].(*KeyboardEvent)
+				eventQueue = append(eventQueue, &event.Keyboard{})
+				lastKbdEvent = eventQueue[len(eventQueue)-1].(*event.Keyboard)
 				// eventQueue[lastKbdEventIndex].Mod = 1
 			}
 			if r != utf8.RuneError {

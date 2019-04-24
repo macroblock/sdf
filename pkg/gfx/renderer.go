@@ -17,7 +17,7 @@ type (
 		bounds    geom.Rect2i
 		viewport  geom.Rect2i
 		font      IFontFace
-		textColor color.RGBA
+		textColor color.Color
 		r         *sdl.Renderer
 	}
 )
@@ -93,13 +93,12 @@ func (o *Renderer) Size() (int, int) {
 }
 
 // SetColor -
-func (o *Renderer) SetColor(c color.RGBA) {
-	r, g, b, a := c.RGBA()
-	o.r.SetDrawColor(uint8(r), uint8(g), uint8(b), uint8(a))
+func (o *Renderer) SetColor(c color.Color) {
+	o.r.SetDrawColor(RGBA8(c))
 }
 
 // SetTextColor -
-func (o *Renderer) SetTextColor(c color.RGBA) {
+func (o *Renderer) SetTextColor(c color.Color) {
 	o.textColor = c
 }
 

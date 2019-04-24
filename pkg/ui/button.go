@@ -1,21 +1,29 @@
 package ui
 
 import (
-	"image/color"
-
-	"github.com/macroblock/sdf/pkg/geom"
+	"github.com/macroblock/sdf/pkg/theme"
 )
 
 type (
 	// Button -
 	Button struct {
-		KernelNode
+		Panel
 		pressed bool
-		color   color.Color
 	}
 )
 
 // NewButton -
-func NewButton(bounds geom.Rect2i, c color.Color) *Button {
-	return nil
+func NewButton() *Button {
+	o := Button{}
+	o.self = &o
+	return &o
+}
+
+// Draw -
+func (o *Button) Draw() {
+	// self := o.self
+	r := o.Renderer()
+
+	r.SetColor(theme.Button.Color())
+	r.Clear()
 }

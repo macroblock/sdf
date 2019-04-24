@@ -1,9 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"image/color"
-
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 )
@@ -16,6 +13,11 @@ type (
 		Parent   IKernelNode
 		Children []IKernelNode
 		Bounds   geom.Rect2i
+	}
+
+	// KernelNode2 -
+	KernelNode2 struct {
+		self IKernelNode2
 	}
 )
 
@@ -77,80 +79,52 @@ func (o *KernelNode) DrawScheme(zp geom.Point2i, clip geom.Rect2i) {
 	r := o.Renderer()
 
 	rect := self.RectNC()
-	fmt.Println("----------------")
-	fmt.Println("zp  : ", zp)
-	fmt.Println("clip: ", clip)
-	fmt.Println("rect: ", rect)
+	// fmt.Println("----------------")
+	// fmt.Println("zp  : ", zp)
+	// fmt.Println("clip: ", clip)
+	// fmt.Println("rect: ", rect)
 
 	offset, clip := ClipRect(rect.Add(zp), clip)
 	r.SetViewport(clip)
 	r.SetOffset(offset)
-
 	self.DrawNC()
-	size := self.SizeNC()
-	r.SetColor(color.RGBA{255, 255, 255, 255})
-	r.DrawRect(0, 0, size.X, size.Y)
+
+	// size := self.SizeNC()
+	// r.SetColor(color.RGBA{255, 255, 255, 255})
+	// r.DrawRect(0, 0, size.X, size.Y)
 
 	rect = self.Rect()
 	offset, clip = ClipRect(rect.Add(zp), clip)
 	r.SetViewport(clip)
 	r.SetOffset(offset)
-
 	self.Draw()
 
 	zp = zp.Add(rect.A)
-	// clip = clip.Add(offset)
 	for _, child := range o.Children {
 		child := child.UIKernelNode().self
 		child.DrawScheme(zp, clip)
 	}
-
-	// self := o.self
-	// r := o.Renderer()
-	// rect := self.Rect().Add(zp)
-	// r.SetViewport(rect)
-	// self.DrawNC()
-
-	// rect = self.ClientRect().Add(rect.A)
-	// r.SetViewport(rect)
-	// self.Draw()
-
-	// zp = rect.A
-	// for _, child := range o.Children {
-	// 	child := child.UIKernelNode().self
-	// 	child.DrawScheme(zp, clip)
-	// }
 }
 
 // DrawNC -
 func (o *KernelNode) DrawNC() {
 	// fmt.Println("draw nc")
 	// self := o.self
-	c1 := color.RGBA{200, 100, 100, 255}
-	// c2 := color.RGBA{150, 100, 200, 255}
-	r := o.Renderer()
-	r.SetColor(c1)
-	r.Clear()
+
+	// r := o.Renderer()
+	// r.SetColor(theme.PlaceHolder.Color())
+	// r.Clear()
 }
 
 // Draw -
 func (o *KernelNode) Draw() {
 	// self := o.self
-	// c1 := color.RGBA{200, 150, 100, 255}
-	// fmt.Println("draw")
-	c2 := color.RGBA{100, 100, 200, 255}
-	r := o.Renderer()
-	r.SetColor(c2)
-	r.Clear()
-	r.SetTextColor(color.RGBA{0, 0, 0, 100})
-	// r.Print(10, 9, "Test")
-	// r.Print(10, 11, "Test")
-	// r.Print(9, 10, "Test")
-	// r.Print(11, 10, "Test")
-	// r.Print(11, 11, "Test")
-	r.DrawText(11, 11, "Test")
-	r.SetTextColor(color.RGBA{255, 255, 255, 255})
-	r.DrawText(10, 10, "Test")
+
+	// r := o.Renderer()
+	// r.SetColor(theme.Background.Color())
+	// r.Clear()
+	// r.SetTextColor(theme.Text.Color())
+	// r.DrawText(10, 10, "Test")
 }
 
 // RectNC -
@@ -190,3 +164,30 @@ func (o *KernelNode) Renderer() *gfx.Renderer {
 	}
 	return o.Root.renderer
 }
+
+// HandleEventScheme -
+// func (o *KernelNode) HandleEventScheme(zp geom.Point2i, ev event.IEvent) bool {
+// 	self := o.self
+// 	r := o.Renderer()
+// 	rect := self.RectNC().Add(zp)
+// 	ok := true
+// 	switch ev := ev.(type) {
+// 	case *event.MouseClick:
+// 		ok = rect.ConsistsInt(ev.X, ev.Y)
+// 	case *event.MouseMotion:
+// 		ok = rect.ConsistsInt(ev.X, ev.Y)
+// 	}
+// 	if !ok {
+// 		return false
+// 	}
+// 	zp = zp.Add(rect.A)
+// 	for _, child := range o.Children {
+// 		child := child.UIKernelNode().self
+// 		ok := child.HandleEventScheme(zp, ev)
+// 		if ok {
+// 			return true
+// 		}
+// 	}
+
+// 	return true
+// }

@@ -1,5 +1,7 @@
 package sdf
 
+import "github.com/macroblock/sdf/pkg/event"
+
 type (
 	iInit interface {
 		Init()
@@ -14,7 +16,7 @@ type (
 		Render()
 	}
 	iHandleEvents interface {
-		HandleEvent(ev IEvent)
+		HandleEvent(ev event.IEvent)
 	}
 
 	// IElem -
@@ -48,7 +50,7 @@ func callRender(i interface{}) {
 	}
 }
 
-func callHandleEvent(i interface{}, ev IEvent) {
+func callHandleEvent(i interface{}, ev event.IEvent) {
 	if i, ok := i.(iHandleEvents); ok {
 		i.HandleEvent(ev)
 	}

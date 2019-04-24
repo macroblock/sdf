@@ -28,9 +28,10 @@ type Texture struct {
 // }
 
 // SetColorMod -
-func (o *Texture) SetColorMod(c color.RGBA) {
-	o.sdltex.SetColorMod(c.R, c.G, c.B)
-	o.sdltex.SetAlphaMod(c.A)
+func (o *Texture) SetColorMod(c color.Color) {
+	r, g, b, a := RGBA8(c)
+	o.sdltex.SetColorMod(r, g, b)
+	o.sdltex.SetAlphaMod(a)
 }
 
 // LoadTexture -

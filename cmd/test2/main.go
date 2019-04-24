@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 
+	"github.com/macroblock/sdf/pkg/event"
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/sdf"
 	"github.com/macroblock/sdf/pkg/types"
@@ -35,7 +36,7 @@ func (o *game) Init() {
 	o.grid.Set(1, 1, -1)
 
 	xxx, yyy = 50, 50
-	panel = ui.NewPanel().SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
+	panel = ui.NewButton().SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
 	o.ui = ui.NewUI(sdf.Renderer())
 	o.ui.SetBounds(geom.InitRect2i(100, 100, 500, 250))
 	o.ui.AddChildren(
@@ -51,12 +52,12 @@ func (o *game) CleanUp() {
 }
 
 // HandleEvent -
-func (o *game) HandleEvent(ev sdf.IEvent) {
+func (o *game) HandleEvent(ev event.IEvent) {
 	// fmt.Printf("%v\n", ev)
 	x, y := -1, -1
 	val := 0
 	switch ev := ev.(type) {
-	case *sdf.MouseClickEvent:
+	case *event.MouseClick:
 		if ev.Pressed {
 			x = ev.X
 			y = ev.Y
@@ -64,7 +65,7 @@ func (o *game) HandleEvent(ev sdf.IEvent) {
 		if ev.Button == 1 {
 			val = 1
 		}
-	case *sdf.MouseMotionEvent:
+	case *event.MouseMotion:
 		if ev.Buttons == 0 {
 			break
 		}
@@ -73,13 +74,15 @@ func (o *game) HandleEvent(ev sdf.IEvent) {
 		if ev.Buttons&1 != 0 {
 			val = 1
 		}
-	case *sdf.KeyboardEvent:
-		if ev.Key == sdl.SCANCODE_LEFT {
+	case *event.Keyboard:
+		switch ev.Key {
+		case sdl.SCANCODE_ESCAPE:
+			sdf.Quit()
+		case sdl.SCANCODE_LEFT:
 			xxx--
 			once = true
 			panel.SetPos(geom.InitPoint2i(xxx, yyy))
-		}
-		if ev.Key == sdl.SCANCODE_RIGHT {
+		case sdl.SCANCODE_RIGHT:
 			xxx++
 			once = true
 			panel.SetPos(geom.InitPoint2i(xxx, yyy))

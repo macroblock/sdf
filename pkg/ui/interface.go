@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/macroblock/sdf/pkg/geom"
+import (
+	"github.com/macroblock/sdf/pkg/geom"
+)
 
 type (
 	// IKernelNode -
@@ -15,8 +17,12 @@ type (
 		// BoundsNC() geom.Rect2i
 		// Bounds() geom.Rect2i
 
+		DrawScheme(geom.Point2i, geom.Rect2i)
 		Draw()
 		DrawNC()
-		DrawScheme(geom.Point2i, geom.Rect2i)
+
+		// HandleEventScheme(geom.Point2i, event.IEvent) bool
+		// HandleEvent(event.IEvent) bool
+		// HandleEventNC(event.IEvent) bool
 	}
 )

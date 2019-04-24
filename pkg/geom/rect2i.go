@@ -113,3 +113,19 @@ func (o Rect2i) Intersect(r Rect2i) Rect2i {
 	o.B.Y = misc.MinInt(o.B.Y, r.B.Y)
 	return o
 }
+
+// Consists -
+func (o Rect2i) Consists(p Point2i) bool {
+	if o.A.X <= p.X && p.X < o.B.X && o.A.Y <= p.Y && p.Y < o.B.Y {
+		return true
+	}
+	return false
+}
+
+// ConsistsInt -
+func (o Rect2i) ConsistsInt(x, y int) bool {
+	if o.A.X <= x && x < o.B.X && o.A.Y <= y && y < o.B.Y {
+		return true
+	}
+	return false
+}
