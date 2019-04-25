@@ -25,6 +25,7 @@ type game struct {
 
 var (
 	xxx, yyy int
+	button   *ui.Button
 	panel    *ui.Panel
 )
 
@@ -36,13 +37,13 @@ func (o *game) Init() {
 	o.grid.Set(1, 1, -1)
 
 	xxx, yyy = 50, 50
-	panel = ui.NewButton().SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
+	button = ui.NewButton()
+	button.SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
+	panel = ui.NewPanel()
+	panel.SetBounds(geom.InitRect2i(200, 50, 100, 25))
 	o.ui = ui.NewUI(sdf.Renderer())
 	o.ui.SetBounds(geom.InitRect2i(100, 100, 500, 250))
-	o.ui.AddChildren(
-		panel,
-		ui.NewPanel().SetBounds(geom.InitRect2i(200, 50, 100, 25)),
-	)
+	o.ui.AddObjects(button, panel)
 	fmt.Println("ui:\n", o.ui)
 }
 
@@ -101,7 +102,8 @@ func (o *game) Render() {
 	// o.ui.SetBounds(geom.InitRect2i(100, 100, 50, 79))
 	w, h := sdf.Renderer().Size()
 	if once {
-		o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
+		// o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
+		ui.DrawScheme(o.ui, geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
 		once = false
 	}
 }

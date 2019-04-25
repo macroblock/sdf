@@ -27,19 +27,19 @@ func NewPanel() *Panel {
 }
 
 // SetPos -
-func (o *Panel) SetPos(pos geom.Point2i) *Panel {
-	o.Bounds = o.Bounds.SetPos(pos)
-	return o
+func (o *Panel) SetPos(pos geom.Point2i) {
+	o.rect = o.rect.SetPos(pos)
+	// return o
 }
 
 // SetBounds -
-func (o *Panel) SetBounds(rect geom.Rect2i) *Panel {
-	o.Bounds = rect
-	return o
+func (o *Panel) SetBounds(rect geom.Rect2i) {
+	o.rect = rect
+	// return o
 }
 
 // Rect -
 func (o *Panel) Rect() geom.Rect2i {
 	// return shrink(o.Bounds, geom.InitRect2iAbs(1, 1, 1, 1))
-	return o.Bounds
+	return o.rect
 }

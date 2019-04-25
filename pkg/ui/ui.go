@@ -8,6 +8,7 @@ type (
 	// UI -
 	UI struct {
 		Panel
+		focus    *IKernelNode
 		renderer *gfx.Renderer
 	}
 )

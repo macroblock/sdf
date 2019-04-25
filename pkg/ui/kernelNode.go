@@ -8,16 +8,16 @@ import (
 type (
 	// KernelNode -
 	KernelNode struct {
-		self     IKernelNode
-		Root     *UI
-		Parent   IKernelNode
-		Children []IKernelNode
-		Bounds   geom.Rect2i
+		self    IKernelNode
+		Root    *UI
+		Parent  IKernelNode
+		objects []IKernelNode
+		rect    geom.Rect2i
 	}
 
-	// KernelNode2 -
-	KernelNode2 struct {
-		self IKernelNode2
+	// HasObjects -
+	HasObjects struct {
+		objects []interface{}
 	}
 )
 
@@ -26,20 +26,25 @@ func (o *KernelNode) UIKernelNode() *KernelNode {
 	return o
 }
 
+// Objects -
+func (o *KernelNode) Objects() []IKernelNode {
+	return o.objects
+}
+
 func setRootRecursive(src IKernelNode, root *UI) {
 	kernel := src.UIKernelNode()
-	for _, child := range kernel.Children {
+	for _, child := range kernel.objects {
 		setRootRecursive(child, root)
 	}
 	kernel.Root = root
 }
 
-// AddChildren -
-func (o *KernelNode) AddChildren(children ...IKernelNode) {
-	for _, child := range children {
-		child.UIKernelNode().Parent = o.self
-		setRootRecursive(child, o.Root)
-		o.Children = append(o.Children, child)
+// AddObjects -
+func (o *KernelNode) AddObjects(objects ...IKernelNode) {
+	for _, obj := range objects {
+		obj.UIKernelNode().Parent = o.self
+		setRootRecursive(obj, o.Root)
+		o.objects = append(o.objects, obj)
 	}
 }
 
@@ -73,39 +78,6 @@ func ClipRect(rect, clip geom.Rect2i) (geom.Point2i, geom.Rect2i) {
 	return offset, clip
 }
 
-// DrawScheme -
-func (o *KernelNode) DrawScheme(zp geom.Point2i, clip geom.Rect2i) {
-	self := o.self
-	r := o.Renderer()
-
-	rect := self.RectNC()
-	// fmt.Println("----------------")
-	// fmt.Println("zp  : ", zp)
-	// fmt.Println("clip: ", clip)
-	// fmt.Println("rect: ", rect)
-
-	offset, clip := ClipRect(rect.Add(zp), clip)
-	r.SetViewport(clip)
-	r.SetOffset(offset)
-	self.DrawNC()
-
-	// size := self.SizeNC()
-	// r.SetColor(color.RGBA{255, 255, 255, 255})
-	// r.DrawRect(0, 0, size.X, size.Y)
-
-	rect = self.Rect()
-	offset, clip = ClipRect(rect.Add(zp), clip)
-	r.SetViewport(clip)
-	r.SetOffset(offset)
-	self.Draw()
-
-	zp = zp.Add(rect.A)
-	for _, child := range o.Children {
-		child := child.UIKernelNode().self
-		child.DrawScheme(zp, clip)
-	}
-}
-
 // DrawNC -
 func (o *KernelNode) DrawNC() {
 	// fmt.Println("draw nc")
@@ -129,12 +101,12 @@ func (o *KernelNode) Draw() {
 
 // RectNC -
 func (o *KernelNode) RectNC() geom.Rect2i {
-	return o.Bounds
+	return o.rect
 }
 
 // Rect -
 func (o *KernelNode) Rect() geom.Rect2i {
-	return o.Bounds //.Sub(o.Bounds.A)
+	return o.rect //.Sub(o.Bounds.A)
 	// return geom.Rect2i{B2: o.Bounds.B2}
 	// return geom.InitRect2i(0, 0, o.Bounds.W, o.Bounds.H)
 	// return shrinkRect(o.Bounds, o.border)
@@ -151,11 +123,6 @@ func (o *KernelNode) Size() geom.Point2i {
 	rect := o.self.Rect()
 	return geom.InitPoint2i(rect.W(), rect.H())
 }
-
-// // Bounds -
-// func (o *KernelNode) Bounds() geom.Rect2i {
-// 	return geom.InitRect2iAbs(1,1,, B: o.Bounds.B}
-// }
 
 // Renderer -
 func (o *KernelNode) Renderer() *gfx.Renderer {
