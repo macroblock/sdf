@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
+	"github.com/macroblock/sdf/pkg/theme"
 )
 
 type (
@@ -92,11 +93,11 @@ func (o *KernelNode) DrawNC() {
 func (o *KernelNode) Draw() {
 	// self := o.self
 
-	// r := o.Renderer()
-	// r.SetColor(theme.Background.Color())
-	// r.Clear()
-	// r.SetTextColor(theme.Text.Color())
-	// r.DrawText(10, 10, "Test")
+	r := o.Renderer()
+	r.SetColor(theme.Background.Color())
+	r.Clear()
+	r.SetTextColor(theme.Text.Color())
+	r.DrawText2(10, 10, "Test")
 }
 
 // RectNC -

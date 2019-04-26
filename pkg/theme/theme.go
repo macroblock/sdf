@@ -2,6 +2,9 @@ package theme
 
 import (
 	"image/color"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/inconsolata"
 )
 
 type (
@@ -69,3 +72,11 @@ func (o *palette) Palette() *palette {
 func Current() ITheme {
 	return current
 }
+
+// AcquireFontFace -
+func AcquireFontFace() font.Face {
+	return inconsolata.Regular8x16
+}
+
+// ReleaseFontFace -
+func ReleaseFontFace() {}
