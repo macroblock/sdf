@@ -83,25 +83,40 @@ func (o *Renderer) DrawText(x, y int, text string) {
 
 func image2Surface(img image.Image) (*sdl.Surface, error) {
 	rgba := image.NewRGBA(img.Bounds())
+	// rgba := image.NewGray(img.Bounds())
 	size := img.Bounds().Size()
-	s, err := sdl.CreateRGBSurface(0, int32(size.X), int32(size.Y), 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0x00000000)
+	s, err := sdl.CreateRGBSurface(0, int32(size.X), int32(size.Y), 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000)
 	if err != nil {
 		return s, err
 	}
 	rgba.Pix = s.Pixels()
 
 	for y := 0; y < size.Y; y++ {
+		s := ""
 		for x := 0; x < size.X; x++ {
 			c := img.At(x, y)
+			r, g, b, a := c.RGBA()
+			_, _, _, _ = r, g, b, a
+			// newColor := color.Gray{uint8(r >> 8)}
+			s += fmt.Sprintf("%v", c)
 			rgba.Set(x, y, c)
 		}
+		_ = s
+		// fmt.Println(s)
 	}
+	// for y := 0; y < size.Y; y++ {
+	// 	for x := 0; x < size.X; x++ {
+	// 		c := img.At(x, y)
+	// 		rgba.Set(x, y, c)
+	// 	}
+	// }
 
 	// tmp := image.NewRGBA(img.Bounds())
 	// tmp.Pix = s.Pixels()
 	// fmt.Println("Pixels ", s.Pixels()[0:10], " VS ", rgba.Pix[0:10])
 	// saveTemp(tmp)      // save correct
 	s.SaveBMP("s.bmp") // Byte order is incorrect under mac os
+
 	return s, err
 }
 
@@ -135,6 +150,11 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 			sdltex: sdltex,
 		}
 
+		// err = o.SDLRenderer().Copy(sdltex, nil, nil)
+		// if err != nil {
+		// 	panic(fmt.Sprint("sdl texture copy: ", err))
+		// }
+
 		_ = ok
 		switch r {
 		case '\n':
@@ -146,13 +166,17 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 			continue
 		}
 		dst := geom.InitRect2i(x-bearing.X, y-bearing.Y, bounds.Dx(), bounds.Dy())
+		// _ = bearing
+		// dst := geom.InitRect2i(x+10, y+10, 8, 16)
 
 		// src = sdl.Rect{X: 0, Y: 9, W: 5, H: 9}
 		// dst = sdl.Rect{X: x, Y: y, W: 5, H: 9}
 		// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
 
 		box := geom.InitRect2iAbs(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y)
+		// box := geom.InitRect2iAbs(0, 16, 8, 16)
 		tex.SetColorMod(o.textColor)
+		o.SDLRenderer().SetDrawBlendMode(sdl.BLENDMODE_NONE)
 		o.CopyRegion(tex, box, dst)
 
 		x += advance.Round()
