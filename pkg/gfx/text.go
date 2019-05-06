@@ -3,6 +3,7 @@ package gfx
 import (
 	"fmt"
 	"image"
+	"image/color"
 
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/theme"
@@ -98,8 +99,9 @@ func image2Surface(img image.Image) (*sdl.Surface, error) {
 			r, g, b, a := c.RGBA()
 			_, _, _, _ = r, g, b, a
 			// newColor := color.Gray{uint8(r >> 8)}
-			s += fmt.Sprintf("%v", c)
-			rgba.Set(x, y, c)
+			newColor := color.RGBA{255, 255, 255, uint8(r)}
+			s += fmt.Sprintf("%v", newColor)
+			rgba.Set(x, y, newColor)
 		}
 		_ = s
 		// fmt.Println(s)
@@ -115,7 +117,7 @@ func image2Surface(img image.Image) (*sdl.Surface, error) {
 	// tmp.Pix = s.Pixels()
 	// fmt.Println("Pixels ", s.Pixels()[0:10], " VS ", rgba.Pix[0:10])
 	// saveTemp(tmp)      // save correct
-	s.SaveBMP("s.bmp") // Byte order is incorrect under mac os
+	// s.SaveBMP("s.bmp") // Byte order is incorrect under mac os
 
 	return s, err
 }
@@ -135,7 +137,7 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 	x0 := x
 	for _, r := range text {
 		// bounds, tex, bearing, advance, ok := font.Glyph(fixed.Point26_6{}, r)
-		bounds, img, bearing, advance, ok := face.Glyph(fixed.Point26_6{}, r)
+		bounds, img, maskpoint, advance, ok := face.Glyph(fixed.Point26_6{}, r)
 		surf, err := image2Surface(img)
 		if err != nil {
 			panic(fmt.Sprint("sdl image2surface: ", err))
@@ -145,8 +147,10 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 			panic(fmt.Sprint("sdl texture from surface: ", err))
 		}
 		tex := &Texture{
-			W:      surf.Bounds().Dx(),
-			H:      surf.Bounds().Dy(),
+			W: img.Bounds().Dx(),
+			H: img.Bounds().Dy(),
+			// W:      surf.Bounds().Dx(),
+			// H:      surf.Bounds().Dy(),
 			sdltex: sdltex,
 		}
 
@@ -165,7 +169,6 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 			x = x0
 			continue
 		}
-		dst := geom.InitRect2i(x-bearing.X, y-bearing.Y, bounds.Dx(), bounds.Dy())
 		// _ = bearing
 		// dst := geom.InitRect2i(x+10, y+10, 8, 16)
 
@@ -173,11 +176,23 @@ func (o *Renderer) DrawText2(x, y int, text string) {
 		// dst = sdl.Rect{X: x, Y: y, W: 5, H: 9}
 		// err := sdf.renderer.Copy(o.tex.sdltex, &src, &dst)
 
-		box := geom.InitRect2iAbs(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y)
+		zp := geom.InitPoint2i(maskpoint.X, maskpoint.Y)
+		// src := geom.InitRect2iAbs(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y).Add(zp)
+		src := geom.InitRect2iAbs(0, 0, bounds.Dx(), bounds.Dy()).Add(zp)
+		// offset := src.A.Sub(zp)
+		offset := geom.InitPoint2i(bounds.Min.X, bounds.Min.Y)
+		dst := geom.InitRect2i(x, y+20, bounds.Dx(), bounds.Dy()).
+			Add(offset)
+			// AddInt(0, bounds.Dy())
+		_ = dst
+		_ = src
 		// box := geom.InitRect2iAbs(0, 16, 8, 16)
 		tex.SetColorMod(o.textColor)
 		o.SDLRenderer().SetDrawBlendMode(sdl.BLENDMODE_NONE)
-		o.CopyRegion(tex, box, dst)
+		o.CopyRegion(tex, src, dst)
+		fmt.Println("maskpoint: ", maskpoint, " bounds: ", bounds)
+		fmt.Println("src: ", src, " dst: ", dst)
+		// o.Copy(tex, x, y)
 
 		x += advance.Round()
 	}

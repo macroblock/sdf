@@ -1,13 +1,8 @@
 package font
 
 import (
-	"fmt"
-	"unicode"
-
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
-	"github.com/macroblock/sdf/pkg/misc"
-	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -43,49 +38,49 @@ func (o *PixelFontFace) Glyph(dot fixed.Point26_6, r rune) (bounds geom.Rect2i, 
 	return
 }
 
-func glyphMetrics(face font.Face, r rune) {
-	dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r)
-	if ok
-}
+// func glyphMetrics(face font.Face, r rune) {
+// 	dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r)
+// 	if ok
+// }
 
-func parseRanges(face font.Face) {
-	maxAdvance := fixed.Int26_6(-1)
-	// if dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r); ok {
-	for r := rune(0); r <= unicode.MaxRune; r++ {
-		if 0xe000 <= r && r <= 0xf8ff ||
-			0xf0000 <= r && r <= 0xffffd ||
-			0x100000 <= r && r <= 0x10fffd {
-			continue
-		}
-		// if dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r); ok {
-		// 	_ = mask
-		// 	_ = dr
-		// 	_ = mpt
-		// 	_ = adv
-		// 	// fmt.Printf("valid skip %U %v %v %v\n", r, dr, mpt, adv)
-		// 	// continue
-		// }
-		if ttf.Index(r) == 0 {
-			// fmt.Printf("skiped %U\n", r)
-			continue
-		}
-		dr, _, maskp, adv, ok := face.Glyph(fixed.Point26_6{}, r)
-		if !ok {
-			return nil, -1, -1, fixed.Int26_6(0), fmt.Errorf("could not load glyph %q %U", r, r)
-		}
-		maxAdvance = fixed.Int26_6(misc.MaxInt(int(maxAdvance), int(adv)))
-		volume += dr.Dx() * dr.Dy()
-		maskData := tMask{
-			r:         r,
-			destRect:  dr,
-			maskPoint: maskp,
-			advance:   adv,
-		}
-		slice = append(slice, maskData)
-	}
-}
+// func parseRanges(face font.Face) {
+// 	maxAdvance := fixed.Int26_6(-1)
+// 	// if dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r); ok {
+// 	for r := rune(0); r <= unicode.MaxRune; r++ {
+// 		if 0xe000 <= r && r <= 0xf8ff ||
+// 			0xf0000 <= r && r <= 0xffffd ||
+// 			0x100000 <= r && r <= 0x10fffd {
+// 			continue
+// 		}
+// 		// if dr, mask, mpt, adv, ok := face.Glyph(fixed.Point26_6{}, r); ok {
+// 		// 	_ = mask
+// 		// 	_ = dr
+// 		// 	_ = mpt
+// 		// 	_ = adv
+// 		// 	// fmt.Printf("valid skip %U %v %v %v\n", r, dr, mpt, adv)
+// 		// 	// continue
+// 		// }
+// 		if ttf.Index(r) == 0 {
+// 			// fmt.Printf("skiped %U\n", r)
+// 			continue
+// 		}
+// 		dr, _, maskp, adv, ok := face.Glyph(fixed.Point26_6{}, r)
+// 		if !ok {
+// 			return nil, -1, -1, fixed.Int26_6(0), fmt.Errorf("could not load glyph %q %U", r, r)
+// 		}
+// 		maxAdvance = fixed.Int26_6(misc.MaxInt(int(maxAdvance), int(adv)))
+// 		volume += dr.Dx() * dr.Dy()
+// 		maskData := tMask{
+// 			r:         r,
+// 			destRect:  dr,
+// 			maskPoint: maskp,
+// 			advance:   adv,
+// 		}
+// 		slice = append(slice, maskData)
+// 	}
+// }
 
-// ParseFontFace -
-func ParseFontFace(face font.Face) {
+// // ParseFontFace -
+// func ParseFontFace(face font.Face) {
 
-}
+// }

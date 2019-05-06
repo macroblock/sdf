@@ -97,7 +97,7 @@ func (o *KernelNode) Draw() {
 	r.SetColor(theme.Background.Color())
 	r.Clear()
 	r.SetTextColor(theme.Text.Color())
-	r.DrawText2(10, 10, "Test")
+	r.DrawText2(0, 0, " !jTyestxyw")
 }
 
 // RectNC -
