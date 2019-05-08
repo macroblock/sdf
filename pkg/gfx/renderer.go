@@ -8,17 +8,17 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-var defaultFont IFontFace
-
 type (
 	// Renderer -
 	Renderer struct {
-		offset    geom.Point2i
-		bounds    geom.Rect2i
-		viewport  geom.Rect2i
-		font      IFontFace
-		textColor color.Color
-		r         *sdl.Renderer
+		offset      geom.Point2i
+		bounds      geom.Rect2i
+		viewport    geom.Rect2i
+		font        *HWFace
+		face        IFace
+		defaultFont *HWFace
+		textColor   color.Color
+		r           *sdl.Renderer
 	}
 )
 
@@ -56,8 +56,8 @@ func (o *Renderer) SetOffset(offset geom.Point2i) {
 }
 
 // SetDefaultFont -
-func (o *Renderer) SetDefaultFont(font IFontFace) {
-	defaultFont = font
+func (o *Renderer) SetDefaultFont(font *HWFace) {
+	o.defaultFont = font
 }
 
 // ResetViewport -
@@ -157,7 +157,7 @@ func (o *Renderer) FillRect2i(rect geom.Rect2i) {
 func (o *Renderer) Print(x, y int, text string) {
 	font := o.font
 	if font == nil {
-		font = defaultFont
+		font = o.defaultFont
 	}
 	// font.Print(x, y, text)
 }

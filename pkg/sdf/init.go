@@ -5,8 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/macroblock/sdf/pkg/font"
-	"github.com/macroblock/sdf/pkg/font/pixfm5x9normal"
+	"github.com/macroblock/sdf/pkg/theme"
 
 	"github.com/macroblock/sdf/pkg/gfx"
 	"github.com/veandco/go-sdl2/sdl"
@@ -83,8 +82,7 @@ func Run(obj interface{}) error {
 	setError(err)
 
 	sdf.renderer = gfx.NewRenderer(renderer)
-	defaultFont := font.CreatePixelFont(pixfm5x9normal.Font, LoadTexture(pixfm5x9normal.Font.FileName))
-	sdf.renderer.SetDefaultFont(defaultFont.NewFace(2))
+	sdf.renderer.SetDefaultFont(theme.AcquireFontFace(sdf.renderer))
 
 	on.obj = obj
 

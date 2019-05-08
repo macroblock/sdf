@@ -1,10 +1,13 @@
 package theme
 
 import (
+	"bytes"
 	"image/color"
+	"io/ioutil"
 
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/inconsolata"
+	"github.com/golang/freetype/truetype"
+	"github.com/macroblock/sdf/pkg/gfx"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 type (
@@ -73,9 +76,36 @@ func Current() ITheme {
 	return current
 }
 
+var fontFace *gfx.HWFace
+
 // AcquireFontFace -
-func AcquireFontFace() font.Face {
-	return inconsolata.Regular8x16
+func AcquireFontFace(renderer *gfx.Renderer) *gfx.HWFace {
+	if fontFace != nil {
+		return fontFace
+	}
+	r := bytes.NewReader(goregular.TTF)
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		// return nil, err
+		panic("!!!")
+	}
+
+	ttf, err := truetype.Parse(data)
+	if err != nil {
+		// return nil, err
+		panic("???")
+	}
+
+	face, err := renderer.NewHWFace(ttf, &truetype.Options{
+		Size: float64(20),
+		// Hinting:    font.HintingFull,
+		SubPixelsX: 1,
+		SubPixelsY: 1,
+	})
+	if err != nil {
+		panic("!?!? " + err.Error())
+	}
+	return face
 }
 
 // ReleaseFontFace -
