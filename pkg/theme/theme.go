@@ -7,6 +7,8 @@ import (
 
 	"github.com/golang/freetype/truetype"
 	"github.com/macroblock/sdf/pkg/gfx"
+	"github.com/macroblock/sdf/pkg/unifont"
+	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
@@ -76,10 +78,10 @@ func Current() ITheme {
 	return current
 }
 
-var fontFace *gfx.HWFace
+var fontFace font.Face
 
 // AcquireFontFace -
-func AcquireFontFace(renderer *gfx.Renderer) *gfx.HWFace {
+func AcquireFontFace(renderer *gfx.Renderer) font.Face {
 	if fontFace != nil {
 		return fontFace
 	}
@@ -96,7 +98,7 @@ func AcquireFontFace(renderer *gfx.Renderer) *gfx.HWFace {
 		panic("???")
 	}
 
-	face, err := renderer.NewHWFace(ttf, &truetype.Options{
+	face, err := unifont.NewHWFace(renderer, ttf, &truetype.Options{
 		Size: float64(20),
 		// Hinting:    font.HintingFull,
 		SubPixelsX: 1,

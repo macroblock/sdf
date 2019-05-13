@@ -19,15 +19,20 @@ type Texture struct {
 	W, H   int
 }
 
-// // Copy -
-// func (o *Texture) Copy(x, y int) {
-// 	if !Ok() {
-// 		return
-// 	}
-// 	r := sdl.Rect{X: int32(x), Y: int32(y), W: int32(o.W), H: int32(o.H)}
-// 	err := sdf.renderer.Copy(o.sdltex, nil, &r)
-// 	setError(err)
-// }
+// ColorModel -
+func (o *Texture) ColorModel() color.Model {
+	panic("this is just a stub to use as Image interface")
+}
+
+// Bounds -
+func (o *Texture) Bounds() image.Rectangle {
+	panic("this is just a stub to use as Image interface")
+}
+
+// At -
+func (o *Texture) At(x, y int) color.Color {
+	panic("this is just a stub to use as Image interface")
+}
 
 // SetColorMod -
 func (o *Texture) SetColorMod(c color.Color) {
@@ -89,7 +94,6 @@ func (o *Renderer) CopyRegion(tex *Texture, src, dst geom.Rect2i) {
 func (o *Renderer) CopyRegionEx(tex *Texture, src, dst geom.Rect2i, flip FlipMode) {
 	r1 := geom.Rect2iToSdl(src)
 	r2 := geom.Rect2iToSdl(dst.Sub(o.offset))
-	// err := o.r.Copy(tex.sdltex, &r1, &r2)
 	err := o.r.CopyEx(tex.sdltex, &r1, &r2, 0, nil, sdl.RendererFlip(flip))
 	_ = err
 	// setError(err)
@@ -106,17 +110,10 @@ func (o *Renderer) ImageToTexture(img image.Image) (*Texture, error) {
 	rgba.Pix = surf.Pixels()
 
 	for y := 0; y < size.Y; y++ {
-		s := ""
 		for x := 0; x < size.X; x++ {
 			c := img.At(x, y)
-			r, g, b, a := c.RGBA()
-			_, _, _, _ = r, g, b, a
-			// newColor := color.Gray{uint8(r >> 8)}
-			newColor := color.RGBA{255, 255, 255, uint8(r)}
-			s += fmt.Sprintf("%v", newColor)
-			rgba.Set(x, y, newColor)
+			rgba.Set(x, y, c)
 		}
-		_ = s
 	}
 	sdltex, err := o.SDLRenderer().CreateTextureFromSurface(surf)
 	surf.Free()
@@ -128,33 +125,9 @@ func (o *Renderer) ImageToTexture(img image.Image) (*Texture, error) {
 		return nil, fmt.Errorf("Renderer.ImageToTexture Query: %v", err)
 	}
 	tex := &Texture{
-		W: int(w),
-		H: int(h),
-		// W: img.Bounds().Dx(),
-		// H: img.Bounds().Dy(),
-		// W:      surf.Bounds().Dx(),
-		// H:      surf.Bounds().Dy(),
-		sdltex: sdltex,
-	}
-	return tex, err
-}
-
-// SurfaceToTexture - it's hack
-func (o *Renderer) SurfaceToTexture(surf *sdl.Surface) (*Texture, error) {
-	surf.SaveBMP("test.bmp")
-	sdltex, err := o.SDLRenderer().CreateTextureFromSurface(surf)
-	// defer surf.Free() // TODO: WHY ?
-	if err != nil {
-		return nil, err
-	}
-	_, _, w, h, err := sdltex.Query()
-	if err != nil {
-		return nil, err
-	}
-	tex := &Texture{
 		W:      int(w),
 		H:      int(h),
 		sdltex: sdltex,
 	}
-	return tex, nil
+	return tex, err
 }

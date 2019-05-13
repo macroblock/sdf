@@ -6,17 +6,18 @@ import (
 
 	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/veandco/go-sdl2/sdl"
+	"golang.org/x/image/font"
 )
 
 type (
 	// Renderer -
 	Renderer struct {
-		offset      geom.Point2i
-		bounds      geom.Rect2i
-		viewport    geom.Rect2i
-		font        *HWFace
-		face        IFace
-		defaultFont *HWFace
+		offset   geom.Point2i
+		bounds   geom.Rect2i
+		viewport geom.Rect2i
+		font     font.Face //*HWFace
+		// face        IFace
+		defaultFont font.Face //*HWFace
 		textColor   color.Color
 		r           *sdl.Renderer
 	}
@@ -56,7 +57,7 @@ func (o *Renderer) SetOffset(offset geom.Point2i) {
 }
 
 // SetDefaultFont -
-func (o *Renderer) SetDefaultFont(font *HWFace) {
+func (o *Renderer) SetDefaultFont(font font.Face) {
 	o.defaultFont = font
 }
 
