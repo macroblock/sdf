@@ -93,6 +93,7 @@ func NewHWFace(renderer *gfx.Renderer, font *truetype.Font, opts *truetype.Optio
 
 	face := HWFace{font: font, coords: map[rune]*RuneCoords{}}
 	f := truetype.NewFace(font, opts)
+	defer f.Close()
 
 	size := geom.Point2i{}
 	sizeV := geom.Point2i{}
