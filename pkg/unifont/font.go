@@ -1,13 +1,11 @@
 package unifont
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"unicode"
 
 	"github.com/golang/freetype/truetype"
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 	"github.com/macroblock/sdf/pkg/misc"
 	"github.com/veandco/go-sdl2/sdl"
@@ -24,8 +22,8 @@ type (
 	}
 	// RuneCoords -
 	RuneCoords struct {
-		Rect    geom.Rect2i
-		ZpOffs  geom.Point2i
+		Rect    image.Rectangle
+		ZpOffs  image.Point
 		Advance fixed.Int26_6
 	}
 )
@@ -43,9 +41,9 @@ func (o *HWFace) Glyph(dot fixed.Point26_6, r rune) (
 	if !ok {
 		return image.Rectangle{}, nil, image.Point{}, 0, false
 	}
-	dr = image.Rect(coords.Rect.A.X, coords.Rect.A.Y, coords.Rect.B.X, coords.Rect.B.Y)
+	dr = coords.Rect
 	mask = o.tex
-	maskp = image.Pt(coords.ZpOffs.X, coords.ZpOffs.Y)
+	maskp = coords.ZpOffs
 	advance = coords.Advance
 	ok = true
 	return
@@ -57,7 +55,7 @@ func (o *HWFace) GlyphBounds(r rune) (bounds fixed.Rectangle26_6, advance fixed.
 	if !ok {
 		return fixed.Rectangle26_6{}, 0, false
 	}
-	bounds = fixed.R(coords.Rect.A.X, coords.Rect.A.Y, coords.Rect.B.X, coords.Rect.B.Y) // TODO: is it correct ?
+	bounds = fixed.R(coords.Rect.Min.X, coords.Rect.Min.Y, coords.Rect.Max.X, coords.Rect.Max.Y) // TODO: is it correct ?
 	advance = coords.Advance
 	ok = true
 	return
@@ -95,8 +93,8 @@ func NewHWFace(renderer *gfx.Renderer, font *truetype.Font, opts *truetype.Optio
 	f := truetype.NewFace(font, opts)
 	defer f.Close()
 
-	size := geom.Point2i{}
-	sizeV := geom.Point2i{}
+	size := image.Point{}
+	sizeV := image.Point{}
 
 	for r := rune(0); r <= unicode.MaxRune; r++ {
 		if 0xe000 <= r && r <= 0xf8ff ||
@@ -118,32 +116,30 @@ func NewHWFace(renderer *gfx.Renderer, font *truetype.Font, opts *truetype.Optio
 		sizeV.X = misc.MaxInt(sizeV.X, dr.Dx())
 		sizeV.Y += dr.Dy()
 	}
-	delta := geom.InitPoint2i(1, 0)
+
+	delta := image.Pt(1, 0)
 	if size.X*size.Y > sizeV.X*sizeV.Y {
 		size = sizeV
-		delta = geom.InitPoint2i(0, 1)
-		fmt.Println("vertical texture: ", size)
-	} else {
-		fmt.Println("horizontal texture: ", size)
+		delta = image.Pt(0, 1)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, size.X, size.Y))
 
-	dstOffs := geom.Point2i{}
+	dstOffs := image.Point{}
 	for r, coords := range face.coords {
 		dr, mask, maskpoint, advance, ok := f.Glyph(fixed.Point26_6{}, r)
 		if !ok {
 			panic("unreachable")
 		}
-		coords.Rect = geom.InitRect2iAbs(dr.Min.X, dr.Min.Y, dr.Max.X, dr.Max.Y)
+		coords.Rect = dr
 		coords.ZpOffs = dstOffs
 		coords.Advance = advance
 
-		srcOffs := geom.InitPoint2i(maskpoint.X, maskpoint.Y)
+		srcOffs := maskpoint
 		blitRune(mask, img, srcOffs, dstOffs, coords.Rect)
 
-		dstOffs.X += coords.Rect.W() * delta.X
-		dstOffs.Y += coords.Rect.H() * delta.Y
+		dstOffs.X += coords.Rect.Dx() * delta.X
+		dstOffs.Y += coords.Rect.Dy() * delta.Y
 	}
 
 	tex, err := renderer.ImageToTexture(img)
@@ -158,11 +154,11 @@ func NewHWFace(renderer *gfx.Renderer, font *truetype.Font, opts *truetype.Optio
 	return &face, nil
 }
 
-func blitRune(mask image.Image, dst *image.RGBA, srcOffs geom.Point2i, dstOffs geom.Point2i, rect geom.Rect2i) {
+func blitRune(mask image.Image, dst *image.RGBA, srcOffs, dstOffs image.Point, rect image.Rectangle) {
 	// fmt.Println("---------------------------------------")
-	for y := 0; y < rect.H(); y++ {
+	for y := 0; y < rect.Dy(); y++ {
 		// s := ""
-		for x := 0; x < rect.W(); x++ {
+		for x := 0; x < rect.Dx(); x++ {
 			c := mask.At(x+srcOffs.X, y+srcOffs.Y)
 			r, g, b, a := c.RGBA()
 			_, _, _, _ = r, g, b, a
