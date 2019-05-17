@@ -2,9 +2,8 @@ package sdf
 
 import (
 	"fmt"
+	"image"
 	"time"
-
-	"github.com/macroblock/sdf/pkg/geom"
 )
 
 type (
@@ -17,7 +16,7 @@ type (
 	// GameObject -
 	GameObject struct {
 		name     string
-		offset   geom.Point2i
+		offset   image.Point
 		oldState string
 		curState string
 		oldTile  IElem
@@ -72,7 +71,7 @@ func (o *GameObject) Tile() *Tile {
 // Copy -
 func (o *GameObject) Copy(x, y int) {
 	// o.curTile.Copy(x, y)
-	p := o.offset.AddInt(x, y)
+	p := o.offset.Add(image.Pt(x, y))
 	o.Tile().Copy(p.X, p.Y)
 }
 

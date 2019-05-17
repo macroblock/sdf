@@ -1,11 +1,11 @@
 package ui
 
-import "github.com/macroblock/sdf/pkg/geom"
+import "image"
 
-func shrink(rect, offsets geom.Rect2i) geom.Rect2i {
-	rect.A.X += offsets.A.X
-	rect.A.Y += offsets.A.Y
-	rect.B.X -= offsets.A.X
-	rect.B.Y -= offsets.A.Y
+func shrink(rect, offsets image.Rectangle) image.Rectangle {
+	rect.Min.X += offsets.Min.X
+	rect.Min.Y += offsets.Min.Y
+	rect.Max.X -= offsets.Min.X
+	rect.Max.Y -= offsets.Min.Y
 	return rect
 }
