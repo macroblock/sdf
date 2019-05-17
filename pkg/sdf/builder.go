@@ -2,8 +2,8 @@ package sdf
 
 import (
 	"fmt"
+	"image"
 
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 )
 
@@ -21,7 +21,7 @@ type (
 
 	tileTemplateType struct {
 		offs   int
-		extend *geom.Rect2i
+		extend *image.Rectangle
 		flip   gfx.FlipMode
 	}
 )
@@ -35,7 +35,7 @@ func BuildTileSet(prefix string, counter uint) *TileBuilder {
 }
 
 // Tile -
-func (o *TileBuilder) Tile(offs int, extend *geom.Rect2i, flip gfx.FlipMode) *TileBuilder {
+func (o *TileBuilder) Tile(offs int, extend *image.Rectangle, flip gfx.FlipMode) *TileBuilder {
 	if offs < 0 {
 		setError(fmt.Errorf("negative tile offset"))
 		return o
@@ -51,7 +51,7 @@ func BuildTileTemplate() *TileTemplateBuilder {
 }
 
 // Tile -
-func (o *TileTemplateBuilder) Tile(offs int, extend *geom.Rect2i, flip gfx.FlipMode) *TileTemplateBuilder {
+func (o *TileTemplateBuilder) Tile(offs int, extend *image.Rectangle, flip gfx.FlipMode) *TileTemplateBuilder {
 	if extend != nil {
 		ext := *extend
 		extend = &ext

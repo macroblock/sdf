@@ -6,7 +6,6 @@ import (
 	"image/color"
 
 	"github.com/macroblock/sdf/pkg/general"
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -75,25 +74,25 @@ func (o *Renderer) UnloadTexture(tex *Texture) {
 
 // Copy -
 func (o *Renderer) Copy(tex *Texture, x, y int) {
-	r := sdlRect(x-o.offset.X, y-o.offset.Y, tex.W, tex.H)
+	r := sdlRectI(x-o.offset.X, y-o.offset.Y, tex.W, tex.H)
 	err := o.r.Copy(tex.sdltex, nil, &r)
 	_ = err
 	// setError(err)
 }
 
 // CopyRegion -
-func (o *Renderer) CopyRegion(tex *Texture, src, dst geom.Rect2i) {
-	r1 := geom.Rect2iToSdl(src)
-	r2 := geom.Rect2iToSdl(dst.Sub(o.offset))
+func (o *Renderer) CopyRegion(tex *Texture, src, dst image.Rectangle) {
+	r1 := sdlRect(src)
+	r2 := sdlRect(dst.Sub(o.offset))
 	err := o.r.Copy(tex.sdltex, &r1, &r2)
 	_ = err
 	// setError(err)
 }
 
 // CopyRegionEx -
-func (o *Renderer) CopyRegionEx(tex *Texture, src, dst geom.Rect2i, flip FlipMode) {
-	r1 := geom.Rect2iToSdl(src)
-	r2 := geom.Rect2iToSdl(dst.Sub(o.offset))
+func (o *Renderer) CopyRegionEx(tex *Texture, src, dst image.Rectangle, flip FlipMode) {
+	r1 := sdlRect(src)
+	r2 := sdlRect(dst.Sub(o.offset))
 	err := o.r.CopyEx(tex.sdltex, &r1, &r2, 0, nil, sdl.RendererFlip(flip))
 	_ = err
 	// setError(err)

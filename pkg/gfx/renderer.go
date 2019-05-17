@@ -2,9 +2,9 @@ package gfx
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/veandco/go-sdl2/sdl"
 	"golang.org/x/image/font"
 )
@@ -12,9 +12,9 @@ import (
 type (
 	// Renderer -
 	Renderer struct {
-		offset   geom.Point2i
-		bounds   geom.Rect2i
-		viewport geom.Rect2i
+		offset   image.Point
+		bounds   image.Rectangle
+		viewport image.Rectangle
 		font     font.Face //*HWFace
 		// face        IFace
 		defaultFont font.Face //*HWFace
@@ -23,8 +23,12 @@ type (
 	}
 )
 
-func sdlRect(x, y, w, h int) sdl.Rect {
+func sdlRectI(x, y, w, h int) sdl.Rect {
 	return sdl.Rect{X: int32(x), Y: int32(y), W: int32(w), H: int32(h)}
+}
+
+func sdlRect(r image.Rectangle) sdl.Rect {
+	return sdl.Rect{X: int32(r.Min.X), Y: int32(r.Min.Y), W: int32(r.Dx()), H: int32(r.Dy())}
 }
 
 // NewRenderer -
@@ -40,9 +44,9 @@ func (o *Renderer) Destroy() error {
 }
 
 // SetViewport -
-func (o *Renderer) SetViewport(rect geom.Rect2i) {
+func (o *Renderer) SetViewport(rect image.Rectangle) {
 	o.viewport = rect
-	r := geom.Rect2iToSdl(rect)
+	r := sdlRect(rect)
 	err := o.r.SetViewport(&r)
 	if err != nil {
 		fmt.Println(err)
@@ -52,7 +56,7 @@ func (o *Renderer) SetViewport(rect geom.Rect2i) {
 }
 
 // SetOffset -
-func (o *Renderer) SetOffset(offset geom.Point2i) {
+func (o *Renderer) SetOffset(offset image.Point) {
 	o.offset = offset
 }
 
@@ -63,7 +67,7 @@ func (o *Renderer) SetDefaultFont(font font.Face) {
 
 // ResetViewport -
 func (o *Renderer) ResetViewport() {
-	o.viewport = geom.Rect2i{}
+	o.viewport = image.Rectangle{}
 	err := o.r.SetViewport(nil)
 	_ = err
 }
@@ -120,7 +124,7 @@ func (o *Renderer) ClearAll() {
 
 // Clear -
 func (o *Renderer) Clear() {
-	rect := sdl.Rect{X: 0, Y: 0, W: int32(o.viewport.W()), H: int32(o.viewport.H())}
+	rect := sdl.Rect{X: 0, Y: 0, W: int32(o.viewport.Dx()), H: int32(o.viewport.Dy())}
 	err := o.r.FillRect(&rect)
 	_ = err
 }
@@ -132,25 +136,25 @@ func (o *Renderer) DrawLine(x1, y1, x2, y2 int) {
 
 // DrawRect -
 func (o *Renderer) DrawRect(x, y, w, h int) {
-	rect := sdlRect(x-o.offset.X, y-o.offset.Y, w, h)
+	rect := sdlRectI(x-o.offset.X, y-o.offset.Y, w, h)
 	o.r.DrawRect(&rect)
 }
 
 // FillRect -
 func (o *Renderer) FillRect(x, y, w, h int) {
-	rect := sdlRect(x-o.offset.X, y-o.offset.Y, w, h)
+	rect := sdlRectI(x-o.offset.X, y-o.offset.Y, w, h)
 	o.r.FillRect(&rect)
 }
 
 // DrawRect2i -
-func (o *Renderer) DrawRect2i(rect geom.Rect2i) {
-	r2 := geom.Rect2iToSdl(rect.Sub(o.offset))
+func (o *Renderer) DrawRect2i(rect image.Rectangle) {
+	r2 := sdlRect(rect.Sub(o.offset))
 	o.r.DrawRect(&r2)
 }
 
 // FillRect2i -
-func (o *Renderer) FillRect2i(rect geom.Rect2i) {
-	r2 := geom.Rect2iToSdl(rect.Sub(o.offset))
+func (o *Renderer) FillRect2i(rect image.Rectangle) {
+	r2 := sdlRect(rect.Sub(o.offset))
 	o.r.FillRect(&r2)
 }
 

@@ -2,8 +2,8 @@ package sdf
 
 import (
 	"fmt"
+	"image"
 
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 )
 
@@ -12,7 +12,7 @@ type (
 	TileSheet struct {
 		name      string
 		tex       *gfx.Texture
-		tileSize  geom.Point2i
+		tileSize  image.Point
 		tilesPerW int
 		// tiles     map[string]*Tile
 	}
@@ -43,7 +43,7 @@ func LoadTileSheet(name string, tileW, tileH int, path string) *TileSheet {
 	}
 	ret := &TileSheet{name: name}
 	ret.tex = tex
-	ret.tileSize = geom.InitPoint2i(tileW, tileH)
+	ret.tileSize = image.Pt(tileW, tileH)
 	ret.tilesPerW = tilesPerW
 	// ret.tiles = map[string]*Tile{}
 	assets.sheets[name] = ret
@@ -51,11 +51,19 @@ func LoadTileSheet(name string, tileW, tileH int, path string) *TileSheet {
 	return ret
 }
 
+func scaleRect(r image.Rectangle, scale image.Point) image.Rectangle {
+	r.Min.X *= scale.X
+	r.Min.Y *= scale.Y
+	r.Max.X *= scale.X
+	r.Max.Y *= scale.Y
+	return r
+}
+
 // InitTile - when x, y > 0 its behavior as usual.
 // When one of the ordinate < 0 then its modulus means an offset in current tile sheet.
 // In this case other ordinate must be zero, otherwise error will be raised.
 // In all cases count of elements started from 1 (not from zero).
-func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip gfx.FlipMode) *Tile {
+func (o *TileSheet) InitTile(name string, x, y int, extend *image.Rectangle, flip gfx.FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -80,17 +88,17 @@ func (o *TileSheet) InitTile(name string, x, y int, extend *geom.Rect2i, flip gf
 	} // switch
 
 	if extend == nil {
-		extend = &geom.Rect2i{}
-		*extend = geom.InitRect2i(0, 0, 1, 1)
+		extend = &image.Rectangle{}
+		*extend = image.Rect(0, 0, 1, 1)
 	}
 
-	origin := geom.InitPoint2i(x, y)
+	origin := image.Pt(x, y)
 	bounds := extend.Add(origin)
-	bearing := origin.Sub(bounds.A)
+	bearing := origin.Sub(bounds.Min)
 	tile := &Tile{
 		tex:    o.tex,
-		bounds: bounds.Mul(o.tileSize),
-		pivot:  bearing.Mul(o.tileSize),
+		bounds: scaleRect(bounds, o.tileSize),
+		pivot:  image.Pt(bearing.X*o.tileSize.X, bearing.Y*o.tileSize.Y),
 		flip:   flip,
 	}
 

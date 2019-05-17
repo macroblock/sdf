@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 
 	"github.com/macroblock/sdf/pkg/event"
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/sdf"
 	"github.com/macroblock/sdf/pkg/types"
 	"github.com/macroblock/sdf/pkg/ui"
@@ -38,11 +38,11 @@ func (o *game) Init() {
 
 	xxx, yyy = 50, 50
 	button = ui.NewButton()
-	button.SetBounds(geom.InitRect2i(xxx, yyy, 100, 100))
+	button.SetBounds(image.Rect(xxx, yyy, xxx+100, yyy+100))
 	panel = ui.NewPanel()
-	panel.SetBounds(geom.InitRect2i(200, 50, 100, 25))
+	panel.SetBounds(image.Rect(200, 50, 200+100, 50+25))
 	o.ui = ui.NewUI(sdf.Renderer())
-	o.ui.SetBounds(geom.InitRect2i(100, 100, 500, 250))
+	o.ui.SetBounds(image.Rect(100, 100, 100+500, 100+250))
 	o.ui.AddObjects(button, panel)
 	fmt.Println("ui:\n", o.ui)
 }
@@ -82,11 +82,11 @@ func (o *game) HandleEvent(ev event.IEvent) {
 		case sdl.SCANCODE_LEFT:
 			xxx--
 			once = true
-			panel.SetPos(geom.InitPoint2i(xxx, yyy))
+			panel.SetPos(image.Pt(xxx, yyy))
 		case sdl.SCANCODE_RIGHT:
 			xxx++
 			once = true
-			panel.SetPos(geom.InitPoint2i(xxx, yyy))
+			panel.SetPos(image.Pt(xxx, yyy))
 		}
 	}
 	x = (x - o.gridX) / cellSize
@@ -103,7 +103,7 @@ func (o *game) Render() {
 	w, h := sdf.Renderer().Size()
 	if once {
 		// o.ui.DrawScheme(geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
-		ui.DrawScheme(o.ui, geom.InitPoint2i(0, 0), geom.InitRect2i(0, 0, w, h))
+		ui.DrawScheme(o.ui, image.Pt(0, 0), image.Rect(0, 0, w, h))
 		once = false
 	}
 }

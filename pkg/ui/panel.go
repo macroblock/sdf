@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/macroblock/sdf/pkg/geom"
+	"image"
 )
 
 type (
@@ -27,19 +27,20 @@ func NewPanel() *Panel {
 }
 
 // SetPos -
-func (o *Panel) SetPos(pos geom.Point2i) {
-	o.rect = o.rect.SetPos(pos)
+func (o *Panel) SetPos(pos image.Point) {
+	pos = pos.Sub(o.rect.Min)
+	o.rect = o.rect.Add(pos)
 	// return o
 }
 
 // SetBounds -
-func (o *Panel) SetBounds(rect geom.Rect2i) {
+func (o *Panel) SetBounds(rect image.Rectangle) {
 	o.rect = rect
 	// return o
 }
 
 // Rect -
-func (o *Panel) Rect() geom.Rect2i {
+func (o *Panel) Rect() image.Rectangle {
 	// return shrink(o.Bounds, geom.InitRect2iAbs(1, 1, 1, 1))
 	return o.rect
 }

@@ -1,7 +1,8 @@
 package ui
 
 import (
-	"github.com/macroblock/sdf/pkg/geom"
+	"image"
+
 	"github.com/macroblock/sdf/pkg/gfx"
 )
 
@@ -14,8 +15,8 @@ type (
 
 		Objects() []IKernelNode
 
-		RectNC() geom.Rect2i
-		Rect() geom.Rect2i
+		RectNC() image.Rectangle
+		Rect() image.Rectangle
 
 		// SizeNC() geom.Point2i
 		// Size() geom.Point2i

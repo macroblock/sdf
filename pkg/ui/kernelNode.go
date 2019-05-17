@@ -1,7 +1,8 @@
 package ui
 
 import (
-	"github.com/macroblock/sdf/pkg/geom"
+	"image"
+
 	"github.com/macroblock/sdf/pkg/gfx"
 	"github.com/macroblock/sdf/pkg/theme"
 )
@@ -13,7 +14,7 @@ type (
 		Root    *UI
 		Parent  IKernelNode
 		objects []IKernelNode
-		rect    geom.Rect2i
+		rect    image.Rectangle
 	}
 
 	// HasObjects -
@@ -50,32 +51,32 @@ func (o *KernelNode) AddObjects(objects ...IKernelNode) {
 }
 
 // ClipRect -
-func ClipRect(rect, clip geom.Rect2i) (geom.Point2i, geom.Rect2i) {
+func ClipRect(rect, clip image.Rectangle) (image.Point, image.Rectangle) {
 	switch {
-	case clip.A.X < rect.A.X:
-		clip.A.X = rect.A.X
-	case clip.A.X > rect.B.X:
-		clip.A.X = rect.B.X
+	case clip.Min.X < rect.Min.X:
+		clip.Min.X = rect.Min.X
+	case clip.Min.X > rect.Max.X:
+		clip.Min.X = rect.Max.X
 	}
 	switch {
-	case clip.A.Y < rect.A.Y:
-		clip.A.Y = rect.A.Y
-	case clip.A.Y > rect.B.Y:
-		clip.A.Y = rect.B.Y
+	case clip.Min.Y < rect.Min.Y:
+		clip.Min.Y = rect.Min.Y
+	case clip.Min.Y > rect.Max.Y:
+		clip.Min.Y = rect.Max.Y
 	}
 	switch {
-	case clip.B.X > rect.B.X:
-		clip.B.X = rect.B.X
-	case clip.B.X < rect.A.X:
-		clip.B.X = rect.A.X
+	case clip.Max.X > rect.Max.X:
+		clip.Max.X = rect.Max.X
+	case clip.Max.X < rect.Min.X:
+		clip.Max.X = rect.Min.X
 	}
 	switch {
-	case clip.B.Y > rect.B.Y:
-		clip.B.Y = rect.B.Y
-	case clip.B.Y < rect.A.Y:
-		clip.B.Y = rect.A.Y
+	case clip.Max.Y > rect.Max.Y:
+		clip.Max.Y = rect.Max.Y
+	case clip.Max.Y < rect.Min.Y:
+		clip.Max.Y = rect.Min.Y
 	}
-	offset := geom.InitPoint2i(clip.A.X-rect.A.X, clip.A.Y-rect.A.Y)
+	offset := image.Pt(clip.Min.X-rect.Min.X, clip.Min.Y-rect.Min.Y)
 	return offset, clip
 }
 
@@ -102,12 +103,12 @@ func (o *KernelNode) Draw() {
 }
 
 // RectNC -
-func (o *KernelNode) RectNC() geom.Rect2i {
+func (o *KernelNode) RectNC() image.Rectangle {
 	return o.rect
 }
 
 // Rect -
-func (o *KernelNode) Rect() geom.Rect2i {
+func (o *KernelNode) Rect() image.Rectangle {
 	return o.rect //.Sub(o.Bounds.A)
 	// return geom.Rect2i{B2: o.Bounds.B2}
 	// return geom.InitRect2i(0, 0, o.Bounds.W, o.Bounds.H)
@@ -115,15 +116,15 @@ func (o *KernelNode) Rect() geom.Rect2i {
 }
 
 // SizeNC -
-func (o *KernelNode) SizeNC() geom.Point2i {
+func (o *KernelNode) SizeNC() image.Point {
 	rect := o.self.RectNC()
-	return geom.InitPoint2i(rect.W(), rect.H())
+	return image.Pt(rect.Dx(), rect.Dy())
 }
 
 // Size -
-func (o *KernelNode) Size() geom.Point2i {
+func (o *KernelNode) Size() image.Point {
 	rect := o.self.Rect()
-	return geom.InitPoint2i(rect.W(), rect.H())
+	return image.Pt(rect.Dx(), rect.Dy())
 }
 
 // Renderer -

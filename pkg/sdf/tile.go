@@ -2,9 +2,9 @@ package sdf
 
 import (
 	"fmt"
+	"image"
 	"time"
 
-	"github.com/macroblock/sdf/pkg/geom"
 	"github.com/macroblock/sdf/pkg/gfx"
 )
 
@@ -12,14 +12,14 @@ type (
 	// Tile -
 	Tile struct {
 		tex    *gfx.Texture
-		bounds geom.Rect2i
-		pivot  geom.Point2i
+		bounds image.Rectangle
+		pivot  image.Point
 		flip   gfx.FlipMode
 	}
 )
 
 // CreateTile - see TileSheet.InitTile function
-func CreateTile(name string, x, y int, extend *geom.Rect2i, flip gfx.FlipMode) *Tile {
+func CreateTile(name string, x, y int, extend *image.Rectangle, flip gfx.FlipMode) *Tile {
 	if !Ok() {
 		return nil
 	}
@@ -53,7 +53,7 @@ func (o *Tile) Copy(x, y int) {
 	src := o.bounds.Canon()
 	x -= o.pivot.X
 	y -= o.pivot.Y
-	dst := geom.InitRect2i(x, y, src.B.X, src.B.Y)
+	dst := image.Rect(x, y, src.Dx(), src.Dy())
 	sdf.renderer.CopyRegionEx(o.tex, src, dst, o.flip)
 	err := error(nil)
 	setError(err)

@@ -1,7 +1,8 @@
 package gfx
 
 import (
-	"github.com/macroblock/sdf/pkg/geom"
+	"image"
+
 	"golang.org/x/image/math/fixed"
 )
 
@@ -27,8 +28,8 @@ func (o *Renderer) DrawText(x, y int, text string) {
 			continue
 		}
 
-		src := geom.InitRect2iAbs(0, 0, dr.Dx(), dr.Dy()).AddInt(maskp.X, maskp.Y)
-		dst := geom.InitRect2iAbs(dr.Min.X, dr.Min.Y, dr.Max.X, dr.Max.Y).AddInt(x, y)
+		src := image.Rect(0, 0, dr.Dx(), dr.Dy()).Add(maskp)
+		dst := dr.Add(image.Pt(x, y))
 		// fmt.Printf("src %q: %v\n", r, src)
 		// fmt.Printf("dst %q: %v\n", r, dst)
 		_ = dst

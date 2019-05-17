@@ -1,13 +1,12 @@
 package ui
 
 import (
+	"image"
 	"image/color"
-
-	"github.com/macroblock/sdf/pkg/geom"
 )
 
 // DrawScheme -
-func DrawScheme(o IKernelNode, zp geom.Point2i, clip geom.Rect2i) {
+func DrawScheme(o IKernelNode, zp image.Point, clip image.Rectangle) {
 	r := o.Renderer()
 
 	rect := o.RectNC()
@@ -31,7 +30,7 @@ func DrawScheme(o IKernelNode, zp geom.Point2i, clip geom.Rect2i) {
 	r.SetOffset(offset)
 	o.Draw()
 
-	zp = zp.Add(rect.A)
+	zp = zp.Add(rect.Min)
 	for _, child := range o.Objects() {
 		// child := child.UIKernelNode().self
 		DrawScheme(child, zp, clip)
